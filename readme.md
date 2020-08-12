@@ -50,76 +50,14 @@ a core plugin for my plugins with [Kotlin](https://kotlinlang.org) feature
 + `/rainbowchat <message>` \: send a message to all online player
 + `/randomteleport` \: teleport to random location in the world
 
-## API
-+ `com.wireless4024.mc.bukcore.api.KotlinPlugin`
-    - `KotlinPlugin#runTask(Runnable)`, `KotlinPlugin#invoke(Runnable)` 
-      run a task in server main thread 
-      ```kotlin
-      val plugin:KotlinPlugin = ...
-      plugin {
-        // a task here
-      }
-      ```
-      is same as
-      ```java
-      JavaPlugin plugin = ...
-      new BukkitRunnable() {
-        @Override
-        public void run() {
-          // a task here
-        }
-      }.runTask(plugin)   
-      ```
-    - `KotlinPlugin#runTask(Long, Runnable)`, `KotlinPlugin#invoke(Long, Runnable)` 
-      run a task in server main thread 
-      ```kotlin
-      val plugin:KotlinPlugin = ...
-      plugin(20) {
-        // a task here
-      }
-      ```
-      is same as
-      ```java
-      JavaPlugin plugin = ...
-      new BukkitRunnable() {
-        @Override
-        public void run() {
-          // a task here
-        }
-      }.runTaskLater(plugin, 20)   
-      ```
-    - `KotlinPlugin#runAsync(Runnable)` 
-      ```kotlin
-      val plugin:KotlinPlugin = ...
-      plugin.runAsync {
-        // a task here
-      }
-      ```
-      is same as
-      ```java
-      JavaPlugin plugin = ...
-      new BukkitRunnable() {
-        @Override
-        public void run() {
-          // a task here
-        }
-      }.runTaskAsynchronously(plugin)
-      ```
-    - `KotlinPlugin#runAsync(Long, Runnable)` 
-      ```kotlin
-      val plugin:KotlinPlugin = ...
-      plugin.runAsync(20) {
-        // a task here
-      }
-      ```
-      is same as
-      ```java
-      JavaPlugin plugin = ...
-      new BukkitRunnable() {
-        @Override
-        public void run() {
-          // a task here
-        }
-      }runTaskLaterAsynchronously(plugin, 20)
-      ```
-      
+### Build from source
++ build Bukcore with kotlin stdlib
+    ```shell script
+    gradlew build && gradlew fatJar
+    ```
+    output file : `build/libs/bukcore-<version>-full.jar`
++ build only Bukcore (if other plugin having kotlin-stdlib)
+    ```shell script
+    gradlew build && gradlew jar
+    ```
+    output file : `build/libs/bukcore-<version>.jar`
