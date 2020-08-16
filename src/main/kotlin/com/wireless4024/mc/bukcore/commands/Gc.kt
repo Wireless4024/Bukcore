@@ -54,21 +54,18 @@ class Gc(override val plugin: KotlinPlugin) : CommandBase {
 	override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<String>): Boolean {
 		if (sender.hasPermission("bukcore.gc")) {
 			plugin.runAsync {
-				val time = System.nanoTime()
+				val time = System.currentTimeMillis()
 				val before = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
-				System.runFinalization()
-				System.gc()
-				System.gc()
 				System.gc()
 				val after = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
-				val dur = System.nanoTime() - time
+				val dur = System.currentTimeMillis() - time
 				sender.sendMessage(("${plugin["message.freed-memory"]} ${ChatColor.BLUE}%.3fMib${ChatColor.RESET}" +
 				                    " ${plugin["message.from"]} ${ChatColor.RED}%.3fMib${ChatColor.RESET} ${plugin["message.to"]}" +
-				                    " ${ChatColor.GREEN}%.3fMib${ChatColor.RESET} ${plugin["message.in"]} ${ChatColor.GREEN}%.3fms")
+				                    " ${ChatColor.GREEN}%.3fMib${ChatColor.RESET} ${plugin["message.in"]} ${ChatColor.GREEN}%sms")
 						                   .format((before - after) / 1048576.0,
 						                           before / 1048576.0,
 						                           after / 1048576.0,
-						                           dur / 1e6))
+						                           dur))
 			}
 
 			return true
