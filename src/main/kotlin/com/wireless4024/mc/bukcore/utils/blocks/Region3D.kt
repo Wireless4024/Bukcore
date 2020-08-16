@@ -38,7 +38,6 @@ import org.bukkit.Location
 import org.bukkit.World
 import org.bukkit.block.Block
 import java.util.concurrent.Future
-import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -327,33 +326,31 @@ open class Region3D(protected val world: World,
 		val buffer = java.lang.reflect.Array.newInstance(IntPair::class.java, counts) as Array<IntPair>
 		var b = -1
 
-		if (onTick == null) {
-			for (x in xcl..xch)
-				for (z in zcl..zch) {
-					if (!world.isChunkLoaded(x, z)) {
-						if (++b < counts) {
-							buffer[b] = IntPair(x, z)
-						} else {
-							val chunks = buffer.copyOfRange(0, b)
-							b = -1
-							core.runTask(++i * period) {
-								var chunk: Chunk
-								for (c in chunks) {
-									chunk = c.getChunk(world)
-									chunk.load(true)
-								}
+		for (x in xcl..xch)
+			for (z in zcl..zch) {
+				if (!world.isChunkLoaded(x, z)) {
+					if (++b < counts) {
+						buffer[b] = IntPair(x, z)
+					} else {
+						val chunks = buffer.copyOfRange(0, b)
+						b = -1
+						core.runTask(++i * period) {
+							var chunk: Chunk
+							for (c in chunks) {
+								chunk = c.getChunk(world)
+								chunk.load(true)
 							}
 						}
 					}
 				}
-			if (b != -1 && b < buffer.size - 1) {
-				val chunks = buffer.copyOfRange(0, b)
-				core.runTask(++i * period) {
-					var chunk: Chunk
-					for (c in chunks) {
-						chunk = c.getChunk(world)
-						chunk.load(true)
-					}
+			}
+		if (b != -1 && b < buffer.size - 1) {
+			val chunks = buffer.copyOfRange(0, b)
+			core.runTask(++i * period) {
+				var chunk: Chunk
+				for (c in chunks) {
+					chunk = c.getChunk(world)
+					chunk.load(true)
 				}
 			}
 		}
