@@ -314,8 +314,7 @@ open class Region3D(protected val world: World,
 	 * @param unload unload chunk after load?
 	 */
 	fun lazyLoadChunk(counts: Int = 4,
-	                  period: Int = 1,
-	                  onTick: ((Int, Long) -> Unit)? = null) {
+	                  period: Int = 1) {
 		val xcl = x1 shr 4 // low  x
 		val xch = x2 shr 4 // high x
 		val zcl = z1 shr 4 // low  z
@@ -357,52 +356,12 @@ open class Region3D(protected val world: World,
 					}
 				}
 			}
-		} else {
-			var timeStart: Long
-			val delayInPeriod = 50 * period
-			for (x in xcl..xch)
-				for (z in zcl..zch) {
-					if (!world.isChunkLoaded(x, z)) {
-						if (++b < counts) {
-							buffer[b] = IntPair(x, z)
-						} else {
-							val chunks = buffer.copyOfRange(0, b)
-							b = -1
-							core.runTask(++i * period) {
-								timeStart = System.currentTimeMillis()
-								for (c in chunks) {
-									world.loadChunk(c.a, c.b, true)
-								}
-								core.runAsync {
-									onTick(chunks.size,
-									       (System.currentTimeMillis() - timeStart).absoluteValue)
-									timeStart = System.currentTimeMillis()
-								}
-							}
-						}
-					}
-				}
-			if (b != -1 && b < buffer.size - 1) {
-				timeStart = System.currentTimeMillis()
-				val chunks = buffer.copyOfRange(0, b)
-				core.runTask(++i * period) {
-					for (c in chunks) {
-						world.loadChunk(c.a, c.b, true)
-					}
-					core.runAsync {
-						onTick(chunks.size,
-						       (System.currentTimeMillis() - timeStart - delayInPeriod).absoluteValue)
-						timeStart = System.currentTimeMillis()
-					}
-				}
-			}
 		}
-		if (i == 0L && onTick != null)
-			core.runAsync {
-				onTick(0, 0)
-			}
 	}
 
+	/**
+	 * x, z pair to get chunk
+	 */
 	private data class IntPair(val a: Int, val b: Int) {
 
 		fun getChunk(world: World): Chunk {
@@ -411,7 +370,7 @@ open class Region3D(protected val world: World,
 	}
 
 	/**
-	 * loop through all chunks in the region
+	 * get all chunks in the region
 	 * @return Array<Chunk>
 	 */
 	fun chunks(): Array<Chunk> {

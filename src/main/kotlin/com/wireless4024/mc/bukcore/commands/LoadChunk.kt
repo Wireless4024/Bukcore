@@ -48,12 +48,7 @@ class LoadChunk(override val plugin: KotlinPlugin) : CommandBase {
 				val counts = (if (args.size >= 2) args[1].toIntOrNull() else null) ?: 16 // 16 chunks per period
 				val period = (if (args.size >= 3) args[2].toIntOrNull() else null) ?: 5 // 4 period per sec
 
-				Region3D.around(sender.location, area).lazyLoadChunk(counts, period) { it, time ->
-					if (it == 0)
-						sender.sendMessage("all chunks has been loaded")
-					else
-						sender.sendMessage("loaded $it chunks ${plugin["message.in"]} ${time}ms..")
-				}
+				Region3D.around(sender.location, area).lazyLoadChunk(counts, period)
 			} else {
 				TODO("functional in console is not implemented")
 			}
