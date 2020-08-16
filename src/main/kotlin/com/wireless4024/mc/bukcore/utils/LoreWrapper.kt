@@ -129,7 +129,7 @@ class LoreWrapper(private val _meta: ItemMeta,
 	/**
 	 * length or lores
 	 */
-	override val size: Int = raw.size
+	override val size: Int get() = raw.size
 
 	/**
 	 * check if having lore [prefix]
