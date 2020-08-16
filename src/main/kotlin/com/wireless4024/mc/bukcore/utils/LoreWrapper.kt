@@ -39,6 +39,7 @@ import com.wireless4024.mc.bukcore.utils.Utils.Companion.istartWith
 import com.wireless4024.mc.bukcore.utils.Utils.Companion.update
 import com.wireless4024.mc.bukcore.utils.Utils.Companion.updateIndexed
 import org.bukkit.Material
+import org.bukkit.Material.AIR
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 
@@ -69,6 +70,7 @@ class LoreWrapper(private val _meta: ItemMeta,
 		val MC_RAW_STR = "§.".toRegex()
 
 		/**
+		 * if this throw NoSuchMethodError please use [Lore.wrap]
 		 * wrap item into [LoreWrapper]
 		 * @param item ItemStack item to wrap lore
 		 * @param force Boolean force return [LoreWrapper] if don't have lores
@@ -76,11 +78,12 @@ class LoreWrapper(private val _meta: ItemMeta,
 		 * @return LoreWrapper if item has lores else null
 		 */
 		@JvmStatic
+		@JvmOverloads
 		fun wrap(item: ItemStack?,
 		         force: Boolean = false,
 		         index: Array<String> = emptyArray(),
 		         skipNotIndex: Boolean = false): LoreWrapper? {
-			if (item == null) return null
+			if (item == null || item.type == AIR) return null
 
 			if (!force && (!item.hasItemMeta() || !item.itemMeta.hasLore())) return null
 			return LoreWrapper(item.itemMeta, index, skipNotIndex)
