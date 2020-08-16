@@ -95,7 +95,7 @@ class LoreWrapper(private val _meta: ItemMeta,
 	/**
 	 * sorted array of pre-index string
 	 */
-	private val index = _index.update { it.toLowerCase() }.also { sort() }
+	private val index = _index.update { it.toLowerCase() }.apply { sort() }
 
 	/**
 	 * indexed value
