@@ -35,6 +35,7 @@ package com.wireless4024.mc.bukcore.utils.blocks
 import com.wireless4024.mc.bukcore.Bukcore
 import org.bukkit.Chunk
 import org.bukkit.Location
+import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.block.Block
 import java.util.concurrent.Future
@@ -114,9 +115,10 @@ open class Region3D(protected val world: World,
 
 		fun around(center: Location, area: Int, height: Int = 1): Region3D {
 			val areaDiv2 = area shr 1
+			val h = height shr 1
 			return Region3D(center.world,
 			                center.blockX - areaDiv2, center.blockX + areaDiv2,
-			                (center.blockY - height - 1), center.blockY + (height - 1),
+			                (center.blockY - h), center.blockY + (h),
 			                center.blockZ - areaDiv2, center.blockZ + areaDiv2
 			)
 		}
@@ -169,6 +171,39 @@ open class Region3D(protected val world: World,
 				for (z in z1..z2)
 					task(world.getBlockAt(x, y, z), ++i)
 
+	}
+
+	/**
+	 * loop through all blocks exclude [exclude] in this region with indexed
+	 * @param task a task to process a block
+	 */
+	fun loopExclude(exclude: Array<Material>, task: (Block) -> Unit) {
+		val exc = exclude.sortedArray()
+
+		for (x in x1..x2)
+			for (y in y1..y2)
+				for (z in z1..z2)
+					world.getBlockAt(x, y, z).let {
+						if (exc.binarySearch(it.type) < 0)
+							task(it)
+					}
+	}
+
+	/**
+	 * loop through all blocks exclude [exclude] in this region with indexed
+	 * @param task a task to process a block
+	 */
+	fun loopExclude(exclude: Array<Material>, task: (Block, Int) -> Unit) {
+		val exc = exclude.sortedArray()
+
+		var i = -1
+		for (x in x1..x2)
+			for (y in y1..y2)
+				for (z in z1..z2)
+					world.getBlockAt(x, y, z).let {
+						if (exc.binarySearch(it.type) < 0)
+							task(it, ++i)
+					}
 	}
 
 	/**
@@ -437,20 +472,20 @@ open class Region3D(protected val world: World,
 	fun moveZ(amount: Int) = Region3D(world, x1, x2, y1, y2, z1 + amount, z2 + amount)
 	fun blockAt(offset: Int): Block {
 		// 0 < offset < size
-		val x = offset / (yDelta * zDelta)
-		val y = offset / zDelta
-		val z = offset % zDelta
+		val x = (offset / (xDelta * zDelta))
+		val z = (offset / xDelta) % zDelta
+		val y = offset % yDelta
 
-		return world.getBlockAt(x, y, z)
+		return world.getBlockAt(x + x1, y + y1, z + z1)
 	}
 
 	fun blockAt(offset: Long): Block {
 		// 0 < offset < size
-		val x = offset / (yDelta * zDelta)
-		val y = offset / zDelta
-		val z = offset % zDelta
+		val x = (offset / (xDelta * zDelta))
+		val z = (offset / xDelta) % zDelta
+		val y = offset % yDelta
 
-		return world.getBlockAt(x.toInt(), y.toInt(), z.toInt())
+		return world.getBlockAt(x.toInt() + x1, y.toInt() + y1, z.toInt() + z1)
 	}
 
 	/**
