@@ -240,5 +240,7 @@ public interface Utils {
 
 			return -1
 		}
+
+		fun <T : Comparable<T>> List<T>.binaryContains(element: T?) = this.binarySearch(element) >= 0
 	}
 }
