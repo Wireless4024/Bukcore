@@ -34,6 +34,7 @@ package com.wireless4024.mc.bukcore.commands
 
 import com.wireless4024.mc.bukcore.api.CommandBase
 import com.wireless4024.mc.bukcore.api.KotlinPlugin
+import com.wireless4024.mc.bukcore.internal.AlwaysEmptyMutableList
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 
@@ -81,7 +82,7 @@ class RainbowChat(override val plugin: KotlinPlugin) : CommandBase {
 	                           command: Command,
 	                           alias: String,
 	                           args: Array<String>): MutableList<String> {
-		if (args.isEmpty()) return mutableListOf()
+		if (args.isEmpty()) return AlwaysEmptyMutableList.get()
 		return if (args.size == 1) super.getPlayers(sender, args.first()) else mutableListOf(args.last())
 	}
 }

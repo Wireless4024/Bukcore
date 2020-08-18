@@ -34,6 +34,7 @@ package com.wireless4024.mc.bukcore.commands
 
 import com.wireless4024.mc.bukcore.api.CommandBase
 import com.wireless4024.mc.bukcore.api.KotlinPlugin
+import com.wireless4024.mc.bukcore.internal.AlwaysEmptyMutableList
 import com.wireless4024.mc.bukcore.internal.InventoryWrapper
 import com.wireless4024.mc.bukcore.utils.BlockUtils
 import org.bukkit.Bukkit
@@ -94,14 +95,14 @@ class OpenChest(override val plugin: KotlinPlugin) : CommandBase {
 	                           alias: String,
 	                           args: Array<String>): MutableList<String> {
 		if (sender !is Player || args.isEmpty())
-			return mutableListOf()
+			return AlwaysEmptyMutableList.get()
 
 		return when (args.size) {
 			1 -> mutableListOf(sender.getTargetBlock(null as Set<Material>?, 80).x.toString())
 			2 -> mutableListOf(sender.getTargetBlock(null as Set<Material>?, 80).y.toString())
 			3 -> mutableListOf(sender.getTargetBlock(null as Set<Material>?, 80).z.toString())
 			4 -> mutableListOf(sender.world.name)
-			else -> mutableListOf()
+			else -> AlwaysEmptyMutableList.get()
 		}
 	}
 }

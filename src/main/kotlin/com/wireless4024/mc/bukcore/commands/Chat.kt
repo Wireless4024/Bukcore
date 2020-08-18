@@ -35,6 +35,7 @@ package com.wireless4024.mc.bukcore.commands
 
 import com.wireless4024.mc.bukcore.api.CommandBase
 import com.wireless4024.mc.bukcore.api.KotlinPlugin
+import com.wireless4024.mc.bukcore.internal.AlwaysEmptyMutableList
 import com.wireless4024.mc.bukcore.internal.Players
 import com.wireless4024.mc.bukcore.utils.Utils.Companion.dropJoinToString
 import org.bukkit.command.Command
@@ -65,7 +66,7 @@ class Chat(override val plugin: KotlinPlugin) : CommandBase {
 	                           command: Command,
 	                           alias: String,
 	                           args: Array<String>): MutableList<String> {
-		if (args.isEmpty()) return mutableListOf()
+		if (args.isEmpty()) return AlwaysEmptyMutableList.get()
 		return if (args.size == 1) super.getPlayers(sender, args.first()) else mutableListOf(args.last())
 	}
 }

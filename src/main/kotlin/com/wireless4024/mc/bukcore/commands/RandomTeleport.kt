@@ -34,6 +34,7 @@ package com.wireless4024.mc.bukcore.commands
 
 import com.wireless4024.mc.bukcore.api.CommandBase
 import com.wireless4024.mc.bukcore.api.KotlinPlugin
+import com.wireless4024.mc.bukcore.internal.AlwaysEmptyMutableList
 import com.wireless4024.mc.bukcore.utils.Cooldown
 import com.wireless4024.mc.bukcore.utils.blocks.Region3D
 import org.bukkit.ChatColor
@@ -143,6 +144,6 @@ class RandomTeleport(override val plugin: KotlinPlugin) : CommandBase {
 	                           command: Command,
 	                           alias: String,
 	                           args: Array<String>): MutableList<String> {
-		return mutableListOf()
+		return AlwaysEmptyMutableList.get()
 	}
 }

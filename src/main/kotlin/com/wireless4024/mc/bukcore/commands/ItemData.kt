@@ -36,6 +36,7 @@ import com.google.gson.Gson
 import com.wireless4024.mc.bukcore.api.CommandBase
 import com.wireless4024.mc.bukcore.api.KotlinPlugin
 import com.wireless4024.mc.bukcore.bridge.PowerNBTBridge
+import com.wireless4024.mc.bukcore.internal.AlwaysEmptyMutableList
 import me.dpohvar.powernbt.PowerNBT
 import me.dpohvar.powernbt.api.NBTCompound
 import org.bukkit.command.Command
@@ -83,6 +84,6 @@ class ItemData(override val plugin: KotlinPlugin) : CommandBase {
 	                           command: Command,
 	                           alias: String,
 	                           args: Array<String>): MutableList<String> {
-		return if (args.isEmpty()) mutableListOf() else mutableListOf(args.last())
+		return if (args.isEmpty()) AlwaysEmptyMutableList.get() else mutableListOf(args.last())
 	}
 }
