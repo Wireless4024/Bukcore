@@ -33,11 +33,17 @@
 package com.wireless4024.mc.bukcore.utils.blocks
 
 import com.wireless4024.mc.bukcore.Bukcore
+import com.wireless4024.mc.bukcore.serializable.SerializableBlock
+import com.wireless4024.mc.bukcore.utils.io.isReady
+import me.dpohvar.powernbt.api.NBTManager
 import org.bukkit.Chunk
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.block.Block
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.io.StreamCorruptedException
 import java.util.concurrent.Future
 import kotlin.math.max
 import kotlin.math.min
@@ -126,6 +132,14 @@ open class Region3D(protected val world: World,
 		@JvmStatic
 		fun square(i: Double): Double {
 			return i * i
+		}
+
+		fun deserialize(input: ObjectInputStream, base: Location, nbtManager: NBTManager? = null) {
+			while (input.isReady()) {
+				if (SerializableBlock.readBlock(input, base, nbtManager))
+					if (!SerializableBlock.checkPadding(input))
+						throw StreamCorruptedException("invalid block padding")
+			}
 		}
 	}
 
@@ -548,5 +562,15 @@ open class Region3D(protected val world: World,
 		if (z2 != other.z2) return false
 
 		return true
+	}
+
+	fun serialize(output: ObjectOutputStream, base: Location, nbtManager: NBTManager? = null) {
+		SerializableBlock.writeSkip(output)
+		invoke { it ->
+			SerializableBlock.writeBlock(output, base, it, nbtManager)
+			SerializableBlock.writePadding(output)
+		}
+		SerializableBlock.writeSkip(output)
+		output.flush()
 	}
 }
