@@ -109,7 +109,6 @@ inline fun <reified K, reified V> ObjectInputStream.readJsonMap(): Map<K, V>? {
 fun <V> ObjectInputStream.readMap(): Map<String, V>? {
 	val length = this.readInt()
 	if (length == 0) return null
-	Bukcore.getInstance().warning(length)
 	return JsonUtils.GSON_INSTANCE.fromJson(InputStreamReader(LimitedInputStream(this, length)),
 	                                        Map::class.java) as Map<String, V>
 
