@@ -32,8 +32,8 @@
 
 package com.wireless4024.mc.bukcore.commands
 
-import com.wireless4024.mc.bukcore.api.CommandBase
 import com.wireless4024.mc.bukcore.api.KotlinPlugin
+import com.wireless4024.mc.bukcore.api.PlayerCommandBase
 import com.wireless4024.mc.bukcore.internal.AlwaysEmptyMutableList
 import com.wireless4024.mc.bukcore.internal.InventoryWrapper
 import com.wireless4024.mc.bukcore.utils.BlockUtils
@@ -41,7 +41,6 @@ import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.block.Chest
 import org.bukkit.command.Command
-import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
 /**

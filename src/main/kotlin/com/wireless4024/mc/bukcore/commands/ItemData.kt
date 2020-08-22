@@ -33,14 +33,13 @@
 package com.wireless4024.mc.bukcore.commands
 
 import com.google.gson.Gson
-import com.wireless4024.mc.bukcore.api.CommandBase
 import com.wireless4024.mc.bukcore.api.KotlinPlugin
+import com.wireless4024.mc.bukcore.api.PlayerCommandBase
 import com.wireless4024.mc.bukcore.bridge.PowerNBTBridge
 import com.wireless4024.mc.bukcore.internal.AlwaysEmptyMutableList
 import me.dpohvar.powernbt.PowerNBT
 import me.dpohvar.powernbt.api.NBTCompound
 import org.bukkit.command.Command
-import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
 /**
