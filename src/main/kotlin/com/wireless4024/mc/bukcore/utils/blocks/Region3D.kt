@@ -33,14 +33,13 @@
 package com.wireless4024.mc.bukcore.utils.blocks
 
 import com.wireless4024.mc.bukcore.Bukcore
+import com.wireless4024.mc.bukcore.internal.AlwaysEmptyMutableList
 import com.wireless4024.mc.bukcore.serializable.SerializableBlock
 import com.wireless4024.mc.bukcore.utils.io.isReady
 import me.dpohvar.powernbt.api.NBTManager
-import org.bukkit.Chunk
-import org.bukkit.Location
-import org.bukkit.Material
-import org.bukkit.World
+import org.bukkit.*
 import org.bukkit.block.Block
+import org.bukkit.scheduler.BukkitTask
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.StreamCorruptedException
@@ -279,6 +278,15 @@ open class Region3D(protected val world: World,
 		return this(java.lang.reflect.Array.newInstance(Block::class.java, size) as Array<Block>)
 	}
 
+	fun toArray(range: IntRange): Array<Block> {
+		@Suppress("UNCHECKED_CAST") // this will always passed
+		val array = java.lang.reflect.Array.newInstance(Block::class.java, range.last - range.first + 1) as Array<Block>
+		var index = -1
+		for (i in range)
+			array[++index] = blockAt(i)
+		return array
+	}
+
 	/**
 	 * loop through all blocks in this region from async thread
 	 * Note : this job will not block execution
@@ -312,7 +320,13 @@ open class Region3D(protected val world: World,
 	 * @return Array<Block> result array
 	 */
 	fun getBlocksSync(): Array<Block> {
+		if (Bukkit.isPrimaryThread()) return toArray()
 		return Bukcore.getInstance().call(this::toArray).get()
+	}
+
+	fun getBlocksSync(range: IntRange): Array<Block> {
+		if (Bukkit.isPrimaryThread()) return toArray(range)
+		return Bukcore.getInstance().call { toArray(range) }.get()
 	}
 
 	/**
@@ -508,19 +522,21 @@ open class Region3D(protected val world: World,
 	 * @param interval Int interval in tick
 	 * @param job Function1<Block, Unit>
 	 */
-	fun lazyUpdate(scale: Int, interval: Int, job: (Block) -> Unit) {
+	fun lazyUpdate(scale: Int, interval: Int, job: (Block) -> Unit): MutableList<BukkitTask> {
 		val minJobSize = (scale + (scale shr 1))
+		val size = size
 		when {
 			size < minJobSize -> {
 				invoke(job)
 			}
 			else              -> {
+				val task = mutableListOf<BukkitTask>()
 				var i = 0
-				val plugin = Bukcore
+				val plugin = Bukcore.getInstance()
 				val loops = (size / scale) - 1
 				while (true) {
 					if (i == loops) break
-					plugin.getInstance().runTask((i * interval).toLong()) {
+					task += plugin.runTask((i * interval).toLong()) {
 						for (x in (i * scale) until (i + 1) * scale)
 							job(blockAt(x))
 					}
@@ -531,12 +547,43 @@ open class Region3D(protected val world: World,
 				// j = 0 ; 0 ..10
 				// j = 1 ; 10..20
 				// j = 2 ; 20..30
-				plugin.getInstance().runTask((i * interval).toLong()) {
+				task += plugin.runTask((i * interval).toLong()) {
 					for (x in (scale * i) until size)
 						job(blockAt(x))
 				}
+				return task
 			}
 		}
+		return AlwaysEmptyMutableList.get()
+	}
+
+	fun lazyAsyncGetBlocks(scale: Int, interval: Int, job: (Array<Block>) -> Unit): MutableList<BukkitTask> {
+		val minJobSize = (scale + (scale shr 1))
+		val size = size
+		when {
+			size < minJobSize -> {
+				job(getBlocksSync())
+			}
+			else              -> {
+				val task = mutableListOf<BukkitTask>()
+				var i = 0
+				val plugin = Bukcore.getInstance()
+				val loops = (size / scale) - 1
+				while (true) {
+					if (i == loops) break
+					task += plugin.runAsync((i * interval).toLong()) {
+						job(getBlocksSync((i * scale) until (i + 1) * scale))
+					}
+					++i
+				}
+				if (size % scale != 0)
+					task += plugin.runAsync((i * interval).toLong()) {
+						job(getBlocksSync((scale * i) until size))
+					}
+				return task
+			}
+		}
+		return AlwaysEmptyMutableList.get()
 	}
 
 	override fun hashCode(): Int {
