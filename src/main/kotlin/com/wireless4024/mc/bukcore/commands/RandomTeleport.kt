@@ -34,7 +34,6 @@ package com.wireless4024.mc.bukcore.commands
 
 import com.wireless4024.mc.bukcore.api.CommandBase
 import com.wireless4024.mc.bukcore.api.KotlinPlugin
-import com.wireless4024.mc.bukcore.internal.AlwaysEmptyMutableList
 import com.wireless4024.mc.bukcore.utils.Cooldown
 import com.wireless4024.mc.bukcore.utils.blocks.Region3D
 import org.bukkit.ChatColor
@@ -86,9 +85,14 @@ class RandomTeleport(override val plugin: KotlinPlugin) : CommandBase {
 	}
 
 	override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<String>): Boolean {
-		if (sender is Player && sender.hasPermission("bukcore.rtp")) {
+		if (sender.hasPermission("bukcore.rtp")) {
+			@Suppress("DEPRECATION")
+			val player = if (sender !is Player) sender.server.getPlayer(args.firstOrNull() ?: return false) else sender
+
+			val args = if (sender !is Player) args.copyOfRange(1, args.size) else args
+
 			plugin.runAsync {
-				val ploc = sender.location
+				val ploc = player.location
 				if (!isEnable(plugin, ploc.world.name)) {
 					sender.sendMessage("this world disabled random teleport")
 					return@runAsync
@@ -104,8 +108,8 @@ class RandomTeleport(override val plugin: KotlinPlugin) : CommandBase {
 				              getInt(plugin, ploc.world.name, "anchorX").toDouble(),
 				              0.0,
 				              getInt(plugin, ploc.world.name, "anchorZ").toDouble(),
-				              sender.location.yaw,
-				              sender.location.pitch)
+				              player.location.yaw,
+				              player.location.pitch)
 				val delay = getInt(plugin, ploc.world.name, "delay", 3)
 				for (d in 0L until delay) {
 					plugin.runTask(d * 20) {
@@ -123,12 +127,12 @@ class RandomTeleport(override val plugin: KotlinPlugin) : CommandBase {
 
 
 				plugin.runTask(delay * 20L) {
-					if (sender.location.block.location != ploc.block.location) {
+					if (player.location.block.location != ploc.block.location) {
 						sender.sendMessage("${ChatColor.RED}rtp has been cancel")
 						return@runTask
 					}
 					val floc = loc.world.getHighestBlockAt(loc).location
-					sender.teleport(floc)
+					player.teleport(floc)
 					sender.sendMessage("${ChatColor.GREEN}woosh?")
 					loc.world.spawnParticle(Particle.PORTAL, floc, 80)
 				}
@@ -138,12 +142,5 @@ class RandomTeleport(override val plugin: KotlinPlugin) : CommandBase {
 		if (sender !is Player)
 			sender.sendMessage("${plugin["message.need-player"]}${plugin["message.command"]}")
 		return true
-	}
-
-	override fun onTabComplete(sender: CommandSender,
-	                           command: Command,
-	                           alias: String,
-	                           args: Array<String>): MutableList<String> {
-		return AlwaysEmptyMutableList.get()
 	}
 }

@@ -51,14 +51,10 @@ import org.bukkit.entity.Player
  * @version 0.1
  * @since 0.1
  */
-class OpenChest(override val plugin: KotlinPlugin) : CommandBase {
+class OpenChest(override val plugin: KotlinPlugin) : PlayerCommandBase {
 
-	override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<String>): Boolean {
+	override fun onCommand(sender: Player, command: Command, label: String, args: Array<String>): Boolean {
 		if (sender.hasPermission("bukcore.openchest")) {
-			if (sender !is Player) {
-				sender.sendMessage(plugin["message.need-player"] as String)
-				return true
-			}
 			val ploc = sender.location
 
 			if (args.size >= 1) ploc.x = args[0].let {
@@ -90,13 +86,10 @@ class OpenChest(override val plugin: KotlinPlugin) : CommandBase {
 		return true
 	}
 
-	override fun onTabComplete(sender: CommandSender,
+	override fun onTabComplete(sender: Player,
 	                           command: Command,
 	                           alias: String,
 	                           args: Array<String>): MutableList<String> {
-		if (sender !is Player || args.isEmpty())
-			return AlwaysEmptyMutableList.get()
-
 		return when (args.size) {
 			1 -> mutableListOf(sender.getTargetBlock(null as Set<Material>?, 80).x.toString())
 			2 -> mutableListOf(sender.getTargetBlock(null as Set<Material>?, 80).y.toString())

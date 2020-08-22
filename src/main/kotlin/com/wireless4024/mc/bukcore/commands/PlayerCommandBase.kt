@@ -32,72 +32,33 @@
 
 package com.wireless4024.mc.bukcore.commands
 
-import com.wireless4024.mc.bukcore.Bukcore
 import com.wireless4024.mc.bukcore.api.CommandBase
-import com.wireless4024.mc.bukcore.api.KotlinPlugin
-import com.wireless4024.mc.bukcore.bridge.PowerNBTBridge
 import com.wireless4024.mc.bukcore.internal.AlwaysEmptyMutableList
-import com.wireless4024.mc.bukcore.utils.BlockUtils
-import me.dpohvar.powernbt.PowerNBT
-import me.dpohvar.powernbt.api.NBTCompound
-import org.bukkit.ChatColor
-import org.bukkit.Material
-import org.bukkit.Material.*
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import org.bukkit.plugin.Plugin
 
-/**
- * pickup block and copy NBT (if PowerNBT available)
- *
- * @author Wireless4024
- * @version 0.1
- * @since 0.1
- */
-class PickBlock(override val plugin: KotlinPlugin) : PlayerCommandBase {
+interface PlayerCommandBase : CommandBase {
 
-	override fun onCommand(sender: Player, command: Command, label: String, args: Array<String>): Boolean {
-		if (sender.hasPermission("bukcore.pickblock")) {
-			val block = BlockUtils.traceBlock(sender, 50)
-			if (block == null) {
-				sender.sendMessage("${ChatColor.RED}${plugin["message.cant-find"]} ${plugin["message.block"]}")
-				return true
-			}
-			val item = block.state.data.toItemStack(1)
-			val plugin: Plugin? = PowerNBTBridge.plugin
-
-			if (item.type == SIGN_POST || item.type == WALL_SIGN)
-				item.type = SIGN
-
-			if (plugin != null) {
-				val nbt = PowerNBT.getApi().read(block)
-				nbt.remove("x")
-				nbt.remove("y")
-				nbt.remove("z")
-				if (item.type != SIGN) // this bug :C
-					nbt.remove("id")
-				val newNbt = NBTCompound()
-				newNbt["BlockEntityTag"] = nbt
-				PowerNBT.getApi().write(item, newNbt)
-				item.itemMeta = item.itemMeta.apply {
-					lore = mutableListOf("picked")
-				}
-				Bukcore.getInstance()(1) {
-					PowerNBT.getApi().write(block, NBTCompound())
-					block.setType(Material.AIR, false)
-				}
-			}
-			val inv = sender.inventory
-			inv.itemInMainHand = item
-		}
+	override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<String>): Boolean {
+		if (sender is Player) return onCommand(sender, command, label, args)
+		sender.sendMessage(plugin["message.need-player"] as String)
 		return true
 	}
+
+	fun onCommand(sender: Player, command: Command, label: String, args: Array<String>): Boolean
 
 	override fun onTabComplete(sender: CommandSender,
 	                           command: Command,
 	                           alias: String,
 	                           args: Array<String>): MutableList<String> {
-		return AlwaysEmptyMutableList.get()
+		return if (sender is Player) onTabComplete(sender, command, alias, args) else AlwaysEmptyMutableList.get()
+	}
+
+	fun onTabComplete(sender: Player,
+	                  command: Command,
+	                  alias: String,
+	                  args: Array<String>): MutableList<String> {
+		return super.onTabComplete(sender, command, alias, args)
 	}
 }

@@ -50,10 +50,10 @@ import org.bukkit.entity.Player
  * @version 0.1
  * @since 0.1
  */
-class ItemData(override val plugin: KotlinPlugin) : CommandBase {
+class ItemData(override val plugin: KotlinPlugin) : PlayerCommandBase {
 
-	override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<String>): Boolean {
-		if (sender.hasPermission("bukcore.itemdata") && sender is Player) {
+	override fun onCommand(sender: Player, command: Command, label: String, args: Array<String>): Boolean {
+		if (sender.hasPermission("bukcore.itemdata")) {
 			if (!PowerNBTBridge.available) {
 				sender.sendMessage("${PowerNBTBridge.name} ${plugin["message.unavailable"]}")
 				return true
@@ -80,7 +80,7 @@ class ItemData(override val plugin: KotlinPlugin) : CommandBase {
 		return true
 	}
 
-	override fun onTabComplete(sender: CommandSender,
+	override fun onTabComplete(sender: Player,
 	                           command: Command,
 	                           alias: String,
 	                           args: Array<String>): MutableList<String> {
