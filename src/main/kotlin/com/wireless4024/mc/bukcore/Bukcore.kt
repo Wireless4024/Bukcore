@@ -101,5 +101,9 @@ class Bukcore : KotlinPlugin() {
 
 		@JvmStatic
 		fun getInstance() = INSTANCE!!
+
+		fun log(message: Any?) {
+			INSTANCE?.info(message)
+		}
 	}
 }
