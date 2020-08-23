@@ -89,6 +89,7 @@ class RandomTeleport(override val plugin: KotlinPlugin) : CommandBase {
 			@Suppress("DEPRECATION")
 			val player = if (sender !is Player) sender.server.getPlayer(args.firstOrNull() ?: return false) else sender
 
+			@Suppress("NAME_SHADOWING")
 			val args = if (sender !is Player) args.copyOfRange(1, args.size) else args
 
 			plugin.runAsync {

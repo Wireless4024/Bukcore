@@ -67,8 +67,7 @@ class OpenChest(override val plugin: KotlinPlugin) : PlayerCommandBase {
 			}
 			if (args.size >= 4) ploc.world = Bukkit.getWorld(args[3]) ?: ploc.world
 
-			val block = BlockUtils.findChest(sender, ploc)
-			            ?: BlockUtils.findChest(sender, plugin["openchest.range"] as Int)
+			val block = BlockUtils.findChest(sender, plugin["openchest.range"] as Int)
 			if (block == null) {
 				sender.sendMessage("${plugin["message.cant-find"]} ${plugin["message.chest"]}")
 				return true

@@ -118,7 +118,7 @@ object BlockUtils {
 		return if (block.type == Material.CHEST || block.type == Material.CHEST) block else null
 	}
 
-	fun findChest(p: Player, location: Location): Block? {
+	fun isChest(location: Location): Block? {
 		val block = location.block
 		return if (block.type == Material.CHEST || block.type == Material.CHEST) block else null
 	}
