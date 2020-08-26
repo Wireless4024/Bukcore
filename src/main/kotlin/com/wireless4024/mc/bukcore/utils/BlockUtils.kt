@@ -40,6 +40,7 @@ import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
+import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
 import org.bukkit.util.BlockIterator
 import java.lang.Integer.max
@@ -164,4 +165,20 @@ object BlockUtils {
 		return target[1].getFace(target[0])
 	}
 
+	fun nearestEntity(location: Location, area: Double = 200.0): Entity? {
+		return location.world.getNearbyEntities(location, area, area, area)
+				.minBy {
+					it.location.distanceSquared(location)
+							.run { if (this != 0.0) this else Double.MAX_VALUE }
+				}
+	}
+
+	fun nearestPlayer(location: Location): Player? {
+		val players = location.world.players.stream()
+		return players.min { o1, o2 ->
+			location.distanceSquared(o1.location)
+					.compareTo(location.distanceSquared(o2.location))
+					.run { if (this == 0) 1 else this }
+		}.orElse(null)
+	}
 }
