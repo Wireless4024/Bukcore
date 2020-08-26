@@ -51,15 +51,15 @@ import org.bukkit.entity.Player
  */
 class ItemData(override val plugin: KotlinPlugin) : PlayerCommandBase {
 
-	override fun onCommand(sender: Player, command: Command, label: String, args: Array<String>): Boolean {
-		if (sender.hasPermission("bukcore.itemdata")) {
+	override fun onCommand(player: Player, command: Command, label: String, args: Array<String>): Boolean {
+		if (player.hasPermission("bukcore.itemdata")) {
 			if (!PowerNBTBridge.available) {
-				sender.sendMessage("${PowerNBTBridge.name} ${plugin["message.unavailable"]}")
+				player.sendMessage("${PowerNBTBridge.name} ${plugin["message.unavailable"]}")
 				return true
 			}
-			val item = sender.inventory.itemInMainHand
+			val item = player.inventory.itemInMainHand
 			if (item == null) {
-				sender.sendMessage(plugin["message.need-holding-item"] as String)
+				player.sendMessage(plugin["message.need-holding-item"] as String)
 				return true
 			}
 			if (args.isNotEmpty()) {
@@ -71,15 +71,15 @@ class ItemData(override val plugin: KotlinPlugin) : PlayerCommandBase {
 					nbt.putAll(data)
 					PowerNBT.getApi().write(item, nbt)
 				} else {
-					sender.sendMessage(plugin["message.json-parse-fail"] as String)
+					player.sendMessage(plugin["message.json-parse-fail"] as String)
 				}
 			}
-			sender.sendMessage(PowerNBT.getApi().read(item)?.toString() ?: "{}")
+			player.sendMessage(PowerNBT.getApi().read(item)?.toString() ?: "{}")
 		}
 		return true
 	}
 
-	override fun onTabComplete(sender: Player,
+	override fun onTabComplete(player: Player,
 	                           command: Command,
 	                           alias: String,
 	                           args: Array<String>): MutableList<String> {

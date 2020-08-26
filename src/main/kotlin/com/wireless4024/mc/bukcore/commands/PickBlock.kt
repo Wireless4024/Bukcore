@@ -57,11 +57,11 @@ import org.bukkit.plugin.Plugin
  */
 class PickBlock(override val plugin: KotlinPlugin) : PlayerCommandBase {
 
-	override fun onCommand(sender: Player, command: Command, label: String, args: Array<String>): Boolean {
-		if (sender.hasPermission("bukcore.pickblock")) {
-			val block = BlockUtils.traceBlock(sender, 50)
+	override fun onCommand(player: Player, command: Command, label: String, args: Array<String>): Boolean {
+		if (player.hasPermission("bukcore.pickblock")) {
+			val block = BlockUtils.traceBlock(player, 50)
 			if (block == null) {
-				sender.sendMessage("${ChatColor.RED}${plugin["message.cant-find"]} ${plugin["message.block"]}")
+				player.sendMessage("${ChatColor.RED}${plugin["message.cant-find"]} ${plugin["message.block"]}")
 				return true
 			}
 			val item = block.state.data.toItemStack(1)
@@ -88,7 +88,7 @@ class PickBlock(override val plugin: KotlinPlugin) : PlayerCommandBase {
 					block.setType(Material.AIR, false)
 				}
 			}
-			val inv = sender.inventory
+			val inv = player.inventory
 			inv.itemInMainHand = item
 		}
 		return true

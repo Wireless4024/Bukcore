@@ -52,47 +52,47 @@ import org.bukkit.entity.Player
  */
 class OpenChest(override val plugin: KotlinPlugin) : PlayerCommandBase {
 
-	override fun onCommand(sender: Player, command: Command, label: String, args: Array<String>): Boolean {
-		if (sender.hasPermission("bukcore.openchest")) {
-			val ploc = sender.location
+	override fun onCommand(player: Player, command: Command, label: String, args: Array<String>): Boolean {
+		if (player.hasPermission("bukcore.openchest")) {
+			val ploc = player.location
 
 			if (args.size >= 1) ploc.x = args[0].let {
-				if (it == "~") ploc.x else it.toIntOrNull()?.toDouble() ?: ploc.x
+				if (it == "~") ploc.x else it.toDoubleOrNull() ?: ploc.x
 			}
 			if (args.size >= 2) ploc.y = args[1].let {
-				if (it == "~") ploc.y else it.toIntOrNull()?.toDouble() ?: ploc.y
+				if (it == "~") ploc.y else it.toDoubleOrNull() ?: ploc.y
 			}
 			if (args.size >= 3) ploc.z = args[2].let {
-				if (it == "~") ploc.z else it.toIntOrNull()?.toDouble() ?: ploc.z
+				if (it == "~") ploc.z else it.toDoubleOrNull() ?: ploc.z
 			}
 			if (args.size >= 4) ploc.world = Bukkit.getWorld(args[3]) ?: ploc.world
 
-			val block = BlockUtils.findChest(sender, plugin["openchest.range"] as Int)
+			val block = BlockUtils.isChest(ploc) ?: BlockUtils.findChest(player, plugin["openchest.range"] as Int)
 			if (block == null) {
-				sender.sendMessage("${plugin["message.cant-find"]} ${plugin["message.chest"]}")
+				player.sendMessage("${plugin["message.cant-find"]} ${plugin["message.chest"]}")
 				return true
 			}
 			plugin.info("${plugin["message.open-chest"]} ${block.location}")
 			if (plugin["openchest.silent"] as Boolean)
-				sender.openInventory(
+				player.openInventory(
 						InventoryWrapper((block.state as Chest).inventory,
 						                 "${plugin["message.chest"]} at %s %s %s".format(block.x, block.y, block.z)))
 			else
-				sender.openInventory((block.state as Chest).inventory)
+				player.openInventory((block.state as Chest).inventory)
 			return true
 		}
 		return true
 	}
 
-	override fun onTabComplete(sender: Player,
+	override fun onTabComplete(player: Player,
 	                           command: Command,
 	                           alias: String,
 	                           args: Array<String>): MutableList<String> {
 		return when (args.size) {
-			1 -> mutableListOf(sender.getTargetBlock(null as Set<Material>?, 80).x.toString())
-			2 -> mutableListOf(sender.getTargetBlock(null as Set<Material>?, 80).y.toString())
-			3 -> mutableListOf(sender.getTargetBlock(null as Set<Material>?, 80).z.toString())
-			4 -> mutableListOf(sender.world.name)
+			1 -> mutableListOf(player.getTargetBlock(null as Set<Material>?, 80).x.toString())
+			2 -> mutableListOf(player.getTargetBlock(null as Set<Material>?, 80).y.toString())
+			3 -> mutableListOf(player.getTargetBlock(null as Set<Material>?, 80).z.toString())
+			4 -> mutableListOf(player.world.name)
 			else -> AlwaysEmptyMutableList.get()
 		}
 	}
