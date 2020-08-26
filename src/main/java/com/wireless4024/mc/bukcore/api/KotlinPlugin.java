@@ -38,6 +38,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.concurrent.*;
 
 /**
@@ -54,7 +55,8 @@ public abstract class KotlinPlugin extends JavaPlugin {
 	 * @param message message to log
 	 */
 	public void info(Object message) {
-		if (((boolean) this.get("debug"))) getLogger().info(String.valueOf(message));
+		if (((boolean) this.get("debug"))) getLogger().info(
+				message instanceof Object[] ? Arrays.deepToString((Object[]) message) : String.valueOf(message));
 	}
 
 	/**
@@ -63,7 +65,8 @@ public abstract class KotlinPlugin extends JavaPlugin {
 	 * @param message message to log
 	 */
 	public void warning(Object message) {
-		getLogger().warning(String.valueOf(message));
+		getLogger().warning(
+				message instanceof Object[] ? Arrays.deepToString((Object[]) message) : String.valueOf(message));
 	}
 
 	/**
