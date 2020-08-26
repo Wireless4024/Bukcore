@@ -34,11 +34,12 @@
 package com.wireless4024.mc.bukcore.api
 
 import com.wireless4024.mc.bukcore.Bukcore
+import com.wireless4024.mc.bukcore.internal.AlwaysEmptyMutableList
+import com.wireless4024.mc.bukcore.utils.BlockUtils
+import org.bukkit.Bukkit
 import org.bukkit.Server
-import org.bukkit.command.Command
-import org.bukkit.command.CommandExecutor
-import org.bukkit.command.CommandSender
-import org.bukkit.command.TabCompleter
+import org.bukkit.command.*
+import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -53,9 +54,30 @@ interface CommandBase : CommandExecutor, TabCompleter {
 
 	companion object {
 
-		internal fun getOnlinePlayers(server: Server?, name: String = ""): MutableList<String> {
-			return server?.onlinePlayers?.map(Player::getName)?.filter { it.startsWith(name, true) }?.toMutableList()
+		fun getOnlinePlayers(server: Server?, name: String = ""): MutableList<String> {
+			return (server ?: Bukkit.getServer())?.onlinePlayers?.map(Player::getName)
+					       ?.filter { it.startsWith(name, true) }
+					       ?.toMutableList()
 			       ?: mutableListOf()
+		}
+
+		fun selectEntity(sender: CommandSender, name: String?): Collection<Entity> {
+			return when (name) {
+				"@p" -> when (sender) {
+					is Player             -> listOf(sender)
+					is BlockCommandSender -> BlockUtils.nearestPlayer(sender.block.location)
+							.let { if (it == null) AlwaysEmptyMutableList.get() else listOf(it) }
+					else                  -> AlwaysEmptyMutableList.get()
+				}
+				"*", "@a" -> Bukkit.getServer().onlinePlayers
+				"@r" -> listOf(Bukkit.getServer().onlinePlayers.random())
+				"@e" -> Bukkit.getWorlds()
+						.stream()
+						.map { it.entities }
+						.reduce { t, u -> t + u }
+						.orElseGet { AlwaysEmptyMutableList.get() }
+				else      -> AlwaysEmptyMutableList.get()
+			}
 		}
 	}
 
