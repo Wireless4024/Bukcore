@@ -44,6 +44,7 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.StreamCorruptedException
 import java.util.concurrent.Future
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -118,12 +119,11 @@ open class Region3D(protected val world: World,
 			                location1.blockZ, location2.blockZ)
 		}
 
-		fun around(center: Location, area: Int, height: Int = 1): Region3D {
+		fun around(center: Location, area: Int, up: Int = 1, down: Int = 0): Region3D {
 			val areaDiv2 = area shr 1
-			val h = height shr 1
 			return Region3D(center.world,
 			                center.blockX - areaDiv2, center.blockX + areaDiv2,
-			                (center.blockY - h), center.blockY + (h),
+			                (center.blockY - down), center.blockY + up,
 			                center.blockZ - areaDiv2, center.blockZ + areaDiv2
 			)
 		}
@@ -507,6 +507,15 @@ open class Region3D(protected val world: World,
 		return world.getBlockAt(x + x1, y + y1, z + z1)
 	}
 
+	fun blockAt0(offset: Int): Block {
+		// 0 < offset < size
+		val y = (offset / (xDelta * yDelta))
+		val x = (offset / yDelta) % xDelta
+		val z = offset % zDelta
+
+		return world.getBlockAt(x + x1, y + y1, z + z1)
+	}
+
 	fun blockAt(offset: Long): Block {
 		// 0 < offset < size
 		val x = (offset / (xDelta * zDelta))
@@ -536,9 +545,11 @@ open class Region3D(protected val world: World,
 				val loops = (size / scale) - 1
 				while (true) {
 					if (i == loops) break
-					task += plugin.runTask((i * interval).toLong()) {
-						for (x in (i * scale) until (i + 1) * scale)
-							job(blockAt(x))
+					val ii = i
+					task += plugin.runTask((ii * interval).toLong()) {
+						for (j in (ii * scale) until (ii + 1) * scale) {
+							job(blockAt(j))
+						}
 					}
 					++i
 				}
@@ -547,14 +558,64 @@ open class Region3D(protected val world: World,
 				// j = 0 ; 0 ..10
 				// j = 1 ; 10..20
 				// j = 2 ; 20..30
-				task += plugin.runTask((i * interval).toLong()) {
-					for (x in (scale * i) until size)
-						job(blockAt(x))
+				val ii = i
+				task += plugin.runTask((ii * interval).toLong()) {
+					for (j in (scale * ii) until size)
+						job(blockAt(j))
 				}
 				return task
 			}
 		}
 		return AlwaysEmptyMutableList.get()
+	}
+
+	fun lazyUpdate0(scale: Int, interval: Int, job: (Block) -> Unit): MutableList<BukkitTask> {
+		val minJobSize = (scale + (scale shr 1))
+		val size = size
+		when {
+			size < minJobSize -> {
+				invoke(job)
+			}
+			else              -> {
+				val task = mutableListOf<BukkitTask>()
+				var i = 0
+				val plugin = Bukcore.getInstance()
+				val loops = (size / scale) - 1
+				while (true) {
+					if (i == loops) break
+					val ii = i
+					task += plugin.runTask((ii * interval).toLong()) {
+						for (j in (ii * scale) until (ii + 1) * scale) {
+							job(blockAt0(j))
+						}
+					}
+					++i
+				}
+				// loops = 31 / 10 = 3
+				// scale = 10
+				// j = 0 ; 0 ..10
+				// j = 1 ; 10..20
+				// j = 2 ; 20..30
+				val ii = i
+				task += plugin.runTask((ii * interval).toLong()) {
+					for (j in (scale * ii) until size)
+						job(blockAt0(j))
+				}
+				return task
+			}
+		}
+		return AlwaysEmptyMutableList.get()
+	}
+
+	fun eachBlockPerTick(pos: Int = 0, job: (block: Block, cancel: AtomicBoolean) -> Boolean) {
+		val cancel = AtomicBoolean(false)
+		if (pos >= size) return
+		var now = pos
+		while (!cancel.get() && now < size && !job(blockAt0(now), cancel)) {
+			if (now - pos > 99) break // if reached 100 block will skip
+			++now
+		}
+		if (++now < size && !cancel.get()) Bukcore.getInstance()() { eachBlockPerTick(now, job) }
 	}
 
 	fun lazyAsyncGetBlocks(scale: Int, interval: Int, job: (Array<Block>) -> Unit): MutableList<BukkitTask> {
@@ -571,15 +632,18 @@ open class Region3D(protected val world: World,
 				val loops = (size / scale) - 1
 				while (true) {
 					if (i == loops) break
-					task += plugin.runAsync((i * interval).toLong()) {
-						job(getBlocksSync((i * scale) until (i + 1) * scale))
+					val ii = i
+					task += plugin.runAsync((ii * interval).toLong()) {
+						job(getBlocksSync((ii * scale) until (ii + 1) * scale))
 					}
 					++i
 				}
-				if (size % scale != 0)
-					task += plugin.runAsync((i * interval).toLong()) {
-						job(getBlocksSync((scale * i) until size))
+				if (size % scale != 0) {
+					val ii = i
+					task += plugin.runAsync((ii * interval).toLong()) {
+						job(getBlocksSync((scale * ii) until size))
 					}
+				}
 				return task
 			}
 		}
