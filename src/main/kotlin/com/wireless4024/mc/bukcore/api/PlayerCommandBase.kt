@@ -45,7 +45,10 @@ interface PlayerCommandBase : CommandBase {
 		return true
 	}
 
-	fun onCommand(sender: Player, command: Command, label: String, args: Array<String>): Boolean
+	/**
+	 * this will fire when player use command
+	 */
+	fun onCommand(player: Player, command: Command, label: String, args: Array<String>): Boolean
 
 	override fun onTabComplete(sender: CommandSender,
 	                           command: Command,
@@ -54,10 +57,13 @@ interface PlayerCommandBase : CommandBase {
 		return if (sender is Player) onTabComplete(sender, command, alias, args) else AlwaysEmptyMutableList.get()
 	}
 
-	fun onTabComplete(sender: Player,
+	/**
+	 * this will fire when player use tab
+	 */
+	fun onTabComplete(player: Player,
 	                  command: Command,
 	                  alias: String,
 	                  args: Array<String>): MutableList<String> {
-		return super.onTabComplete(sender, command, alias, args)
+		return super.onTabComplete(player, command, alias, args)
 	}
 }
