@@ -34,15 +34,18 @@ package com.wireless4024.mc.bukcore.utils
 
 import java.util.*
 
-open class SortedArrayList<T : Comparable<T>>(initialCapacity: Int = 4) : ArrayList<T>(initialCapacity) {
+open class SortedArrayList<T>(comparator: java.util.Comparator<T?>? = null) : ArrayList<T>() {
+
+	@Suppress("UNCHECKED_CAST")
+	private val comparator: java.util.Comparator<T?> = comparator ?: Comparator.INSTANCE as java.util.Comparator<T?>
 
 	override fun add(element: T): Boolean {
-		super.add(this.binarySearch(element).let { if (it < 0) it.inv() else it }, element)
+		super.add(this.binarySearch(element, comparator, 0, size).let { if (it < 0) it.inv() else it }, element)
 		return true
 	}
 
 	fun uniqueAdd(element: T): Boolean {
-		val where = this.binarySearch(element)
+		val where = this.binarySearch(element, comparator, 0, size)
 		if (where < 0) {
 			super.add(where.inv(), element)
 		}
@@ -54,11 +57,11 @@ open class SortedArrayList<T : Comparable<T>>(initialCapacity: Int = 4) : ArrayL
 	}
 
 	override fun contains(element: T): Boolean {
-		return this.binarySearch(element) >= 0
+		return this.binarySearch(element, comparator, 0, size) >= 0
 	}
 
 	override fun indexOf(element: T): Int {
-		return this.binarySearch(element).let { if (it < 0) -1 else it }
+		return this.binarySearch(element, comparator, 0, size).let { if (it < 0) -1 else it }
 	}
 
 	override fun addAll(elements: Collection<T>): Boolean {

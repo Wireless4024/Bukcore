@@ -51,6 +51,7 @@ message:
 
   # word
   chest: Chest
+  inventory: inventory
   block: Block
   players: players
   command: command

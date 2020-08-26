@@ -30,81 +30,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-// default it's will be BukcoreKt.class
-@file:JvmName("Bukcore")
+package com.wireless4024.mc.bukcore.utils;
 
-package com.wireless4024.mc.bukcore
+@SuppressWarnings("ALL")
+public class Comparator<T> implements java.util.Comparator {
+	public static final Comparator INSTANCE = new Comparator();
 
-import com.wireless4024.mc.bukcore.api.KotlinPlugin
-import com.wireless4024.mc.bukcore.commands.*
-import com.wireless4024.mc.bukcore.internal.Players
-import com.wireless4024.mc.bukcore.utils.Cooldown
-import java.io.File
+	private Comparator() { }
 
-/**
- * Main class for bukcore
- *
- * @author Wireless4024
- * @version 0.1
- * @since 0.1
- */
-class Bukcore : KotlinPlugin() {
-
-	/**
-	 * reload config
-	 */
-	fun reload(dry: Boolean = false) {
-		if (!dry)
-			reloadConfig()
-	}
-
-	fun getFile(path: String) = File("plugins/Bukcore/$path")
-
-	override fun onEnable() {
-		INSTANCE = this
-		Chat(this).register()
-		Test(this).register()
-		Gc(this).register()
-		OpenChest(this).register()
-		RainbowChat(this).register()
-		PickBlock(this).register()
-		ItemData(this).register()
-		BukcoreC(this).register(name = "bukcore")
-		LoadChunk(this).register()
-		SortInventory(this).register()
-
-
-		if (get("rtp.enable") as Boolean)
-			RandomTeleport(this).register()
-		saveDefaultConfig()
-
-		if (config.getString("version") < VERSION) {
-			logger.info("updating config")
-			config["version"] = VERSION
-
-			config.options().copyHeader(true).copyDefaults(true)
-			saveConfig()
-			logger.info("update config done")
-		}
-	}
-
-	override fun onDisable() {
-		Cooldown.resetAll()
-		Players.players.clear()
-	}
-
-	companion object {
-
-		const val VERSION = "0.2"
-
-		@JvmSynthetic
-		internal var INSTANCE: Bukcore? = null
-
-		@JvmStatic
-		fun getInstance() = INSTANCE!!
-
-		fun log(message: Any?) {
-			INSTANCE?.info(message)
-		}
+	@Override
+	public int compare(Object o1, Object o2) {
+		return o1 instanceof Comparable ? ((Comparable) o1).compareTo(o2) : 0;
 	}
 }

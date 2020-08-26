@@ -11,42 +11,57 @@ commands:
     description: force player to say a message
     usage: /chat <player> <message>
     permission: bukcore.chat
+
   rainbowchat:
     description: send all message with rainbow box to player
     usage: /rainbowchat <message>
     permission: bukcore.rainbowchat
     aliases: [rc]
+
   openchest:
     description: open target chest inventory even it's locked
     usage: /openchest
     permission: bukcore.openchest
     aliases: [oc]
+
   pickblock:
     description: pick up block with block data
     usage: /pickblock
     permission: bukcore.pickblock
     aliases: [pick]
+
   randomteleport:
     description: random teleport
     usage: /randomteleport
     permission: bukcore.rtp
     aliases: [rtp]
+
   itemdata:
     description: get item nbt
     usage: /itemdata [json]
     permission: bukcore.itemdata
+
   gc:
     description: call `System.gc()`
     usage: /gc
     permission: bukcore.gc
+
   bukcore:
     description: bukcore setting
     usage: /bukcore [reload|version]
     permission: bukcore.bukcore
+
   loadchunk:
     description: load a chunks
     usage: /loadchunk <area> [count-per-period] [period]
     permission: bukcore.loadchunk
+
+  sortinventory:
+    description: sort inventory
+    usage: /sortinventory [player] or /sortinventory <x> <y> <z> <world>
+    permission: bukcore.sortinventory
+    aliases: [sortinv]
+
   test:
     description: development use
     usage: /test
