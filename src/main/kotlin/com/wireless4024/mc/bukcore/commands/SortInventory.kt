@@ -34,8 +34,10 @@ package com.wireless4024.mc.bukcore.commands
 
 import com.wireless4024.mc.bukcore.api.CommandBase
 import com.wireless4024.mc.bukcore.api.KotlinPlugin
+import com.wireless4024.mc.bukcore.bridge.PowerNBTBridge
 import com.wireless4024.mc.bukcore.utils.BlockUtils
 import com.wireless4024.mc.bukcore.utils.UniqueSortedArrayList
+import me.dpohvar.powernbt.PowerNBT
 import org.bukkit.Bukkit
 import org.bukkit.Material.KNOWLEDGE_BOOK
 import org.bukkit.block.Chest
@@ -64,6 +66,12 @@ class SortInventory(override val plugin: KotlinPlugin) : CommandBase {
 			val data = o1.data.data - o2.data.data
 			if (data != 0) return@Comparator data
 
+			if (!PowerNBTBridge.available) return@Comparator 0
+
+			val nbt = PowerNBT.getApi().read(o2).toString().hashCode() -
+			          PowerNBT.getApi().read(o1).toString().hashCode()
+			if (nbt != 0) return@Comparator nbt
+
 			return@Comparator o2.amount - o1.amount
 		}
 
@@ -77,7 +85,13 @@ class SortInventory(override val plugin: KotlinPlugin) : CommandBase {
 			if (id != 0) return@Comparator id
 
 			@Suppress("DEPRECATION")
-			return@Comparator o1.data.data - o2.data.data
+			val data = o1.data.data - o2.data.data
+			if (data != 0) return@Comparator data
+
+			if (!PowerNBTBridge.available) return@Comparator 0
+
+			return@Comparator PowerNBT.getApi().read(o2)?.toString().hashCode() -
+			                  PowerNBT.getApi().read(o1)?.toString().hashCode()
 		}
 
 		@ExperimentalStdlibApi
