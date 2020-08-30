@@ -42,6 +42,10 @@ sortinv:
   # merge  : merge item inventory when sorting (require PowerNBT)
   mode: merge
 # for translation
+
+command: # enabled command
+  disabled:
+    - test
 message:
 
   # error

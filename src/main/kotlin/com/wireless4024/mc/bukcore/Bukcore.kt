@@ -54,11 +54,18 @@ class Bukcore : KotlinPlugin() {
 	 * reload config
 	 */
 	fun reload(dry: Boolean = false) {
-		if (!dry)
+		if (!dry) {
 			reloadConfig()
+			init()
+		}
 	}
 
-	fun getFile(path: String) = File("plugins/Bukcore/$path")
+	private fun init() {
+		for (s in config.getStringList("command.disabled"))
+			disableCommand(s)
+	}
+
+	fun getFile(path: String) = File("plugins/$name/$path")
 
 	override fun onEnable() {
 		INSTANCE = this
@@ -72,10 +79,8 @@ class Bukcore : KotlinPlugin() {
 		BukcoreC(this).register(name = "bukcore")
 		LoadChunk(this).register()
 		SortInventory(this).register()
+		RandomTeleport(this).register()
 
-
-		if (get("rtp.enable") as Boolean)
-			RandomTeleport(this).register()
 		saveDefaultConfig()
 
 		if (config.getString("version") < VERSION) {
@@ -86,6 +91,7 @@ class Bukcore : KotlinPlugin() {
 			saveConfig()
 			logger.info("update config done")
 		}
+		init()
 	}
 
 	override fun onDisable() {
