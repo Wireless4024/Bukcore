@@ -32,13 +32,16 @@
 
 package com.wireless4024.mc.bukcore.api;
 
+import com.wireless4024.mc.bukcore.utils.ReflectionUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.concurrent.*;
 
 /**
@@ -49,6 +52,8 @@ import java.util.concurrent.*;
  * @since 0.1
  */
 public abstract class KotlinPlugin extends JavaPlugin {
+	private HashMap<String, Command> commands = new HashMap<String, Command>(16, 1f);
+
 	/**
 	 * log level [{@link java.util.logging.Level#INFO}]
 	 *
@@ -67,6 +72,15 @@ public abstract class KotlinPlugin extends JavaPlugin {
 	public void warning(Object message) {
 		getLogger().warning(
 				message instanceof Object[] ? Arrays.deepToString((Object[]) message) : String.valueOf(message));
+	}
+
+	public void registerCommand(String name, Command command) {
+		commands.put(name, command); if (!command.isRegistered()) command.register(
+				ReflectionUtils.INSTANCE.getCommandMap());
+	}
+
+	public boolean unregisterCommand(String name) {
+		Command command = commands.get(name); if (command == null) return false; return command.unregister(null);
 	}
 
 	/**
