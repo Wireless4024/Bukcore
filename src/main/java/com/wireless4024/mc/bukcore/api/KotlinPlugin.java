@@ -43,6 +43,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * extended {@link JavaPlugin} with kotlin features
@@ -262,5 +263,72 @@ public abstract class KotlinPlugin extends JavaPlugin {
 	 */
 	public BukkitTask runTimerAsync(long delay, long period, Runnable job) {
 		return Bukkit.getScheduler().runTaskTimerAsynchronously(this, job, delay, period);
+	}
+
+/**
+ * continue calling a task until return false
+ *
+ * @param period delay between each call in tick
+ * @param job    a task to run
+ *//*
+
+	public void lazyRun(final long period, final BooleanCallable job) {
+		runTask(period, ()->{
+			if (!job.call()) lazyRun(period, job);
+		});
+	}
+	*/
+/**
+ * continue calling a task asynchronously until return false
+ *
+ * @param period delay between each call in tick
+ * @param job    a task to run
+ *//*
+
+	public void lazyRunAsync(final long period, final BooleanCallable job) {
+		runAsync(period, ()->{
+			if (!job.call()) lazyRunAsync(period, job);
+		});
+	}
+	interface BooleanCallable {
+		boolean call();
+	}
+*/
+
+/*
+plugin.lazyRun<Int>(1L, 0) { value, cancel ->
+	if (value == 10) cancel.set(true) // run 10 times
+	value + 1
+}
+ */
+
+	/**
+	 * continue calling a task until cancel is true
+	 *
+	 * @param period delay between each call in tick
+	 * @param supply initial value
+	 * @param job    a task to run
+	 */
+	public <T> void lazyRun(final long period, final T supply, final BooleanFunction<T> job) {
+		AtomicBoolean cancel = new AtomicBoolean(false); runTask(period, ()->{
+			T value = job.apply(supply, cancel); if (!cancel.get()) lazyRun(period, value, job);
+		});
+	}
+
+	/**
+	 * continue calling a task asynchronously until return false
+	 *
+	 * @param period delay between each call in tick
+	 * @param supply initial value
+	 * @param job    a task to run
+	 */
+	public <T> void lazyRunAsync(final long period, final T supply, final BooleanFunction<T> job) {
+		AtomicBoolean cancel = new AtomicBoolean(false); runAsync(period, ()->{
+			T value = job.apply(supply, cancel); if (!cancel.get()) lazyRunAsync(period, value, job);
+		});
+	}
+
+	interface BooleanFunction<T> {
+		T apply(T value, AtomicBoolean cancel);
 	}
 }
