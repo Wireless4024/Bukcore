@@ -79,6 +79,10 @@ interface CommandBase : CommandExecutor, TabCompleter {
 				else      -> AlwaysEmptyMutableList.get()
 			}
 		}
+
+		fun getPlayers(sender: CommandSender, name: String? = null): MutableList<String> {
+			return getOnlinePlayers(sender.server, name?.toLowerCase() ?: "")
+		}
 	}
 
 	/**
@@ -100,10 +104,6 @@ interface CommandBase : CommandExecutor, TabCompleter {
 	                           alias: String,
 	                           args: Array<String>): MutableList<String> {
 		return getOnlinePlayers(sender.server, args.lastOrNull()?.toLowerCase() ?: "")
-	}
-
-	fun getPlayers(sender: CommandSender, name: String? = null): MutableList<String> {
-		return getOnlinePlayers(sender.server, name?.toLowerCase() ?: "")
 	}
 
 	/**
