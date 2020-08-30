@@ -104,7 +104,7 @@ class Bukcore : KotlinPlugin() {
 		fun getInstance() = INSTANCE!!
 
 		fun log(message: Any?) {
-			INSTANCE?.info(message)
+			INSTANCE?.log(message)
 		}
 	}
 }

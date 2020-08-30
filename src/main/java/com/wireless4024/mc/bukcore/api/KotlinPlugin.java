@@ -57,14 +57,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public abstract class KotlinPlugin extends JavaPlugin {
 	private HashMap<String, Command> commands = new HashMap<String, Command>(16, 1f);
 
+	private static String str(Object o) {
+		return o instanceof Object[] ?
+		       Arrays.deepToString((Object[]) o) :
+		       o instanceof String ? (String) o : String.valueOf(o);
+	}
+
+	public void log(Object message) {
+		if (((boolean) this.get("debug"))) getLogger().fine(str(message));
+	}
+
 	/**
 	 * log level [{@link java.util.logging.Level#INFO}]
 	 *
 	 * @param message message to log
 	 */
 	public void info(Object message) {
-		if (((boolean) this.get("debug"))) getLogger().info(
-				message instanceof Object[] ? Arrays.deepToString((Object[]) message) : String.valueOf(message));
+		getLogger().info(str(message));
 	}
 
 	/**
@@ -73,8 +82,7 @@ public abstract class KotlinPlugin extends JavaPlugin {
 	 * @param message message to log
 	 */
 	public void warning(Object message) {
-		getLogger().warning(
-				message instanceof Object[] ? Arrays.deepToString((Object[]) message) : String.valueOf(message));
+		getLogger().warning(str(message));
 	}
 
 	public void enableCommand(String name) {
