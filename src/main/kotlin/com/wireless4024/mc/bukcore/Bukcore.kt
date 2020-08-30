@@ -65,8 +65,6 @@ class Bukcore : KotlinPlugin() {
 			disableCommand(s)
 	}
 
-	fun getFile(path: String) = File("plugins/$name/$path")
-
 	override fun onEnable() {
 		INSTANCE = this
 		Chat(this).register()

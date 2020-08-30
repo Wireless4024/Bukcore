@@ -42,6 +42,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.*;
@@ -62,7 +63,11 @@ public abstract class KotlinPlugin extends JavaPlugin {
 		       Arrays.deepToString((Object[]) o) :
 		       o instanceof String ? (String) o : String.valueOf(o);
 	}
-
+	/**
+	 * log level [{@link java.util.logging.Level#FINE}]
+	 *
+	 * @param message message to log
+	 */
 	public void log(Object message) {
 		if (((boolean) this.get("debug"))) getLogger().fine(str(message));
 	}
@@ -83,6 +88,15 @@ public abstract class KotlinPlugin extends JavaPlugin {
 	 */
 	public void warning(Object message) {
 		getLogger().warning(str(message));
+	}
+
+	/**
+	 * get file in config folder
+	 * @param path filename
+	 * @return File object in config folder
+	 */
+	public File getFile(String path) {
+		return new File("plugins" + getName() + path);
 	}
 
 	public void enableCommand(String name) {
