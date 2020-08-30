@@ -35,6 +35,7 @@ package com.wireless4024.mc.bukcore.api;
 import com.wireless4024.mc.bukcore.utils.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -76,19 +77,63 @@ public abstract class KotlinPlugin extends JavaPlugin {
 				message instanceof Object[] ? Arrays.deepToString((Object[]) message) : String.valueOf(message));
 	}
 
+	public void enableCommand(String name) {
+		Command cm = commands.get(name);
+		if (cm != null) {
+			//unregisterCommand(name);
+			registerCommand0(name, cm);
+		}
+	}
+
+	public void disableCommand(String name) {
+		name = name.toLowerCase();
+		Command cm = commands.get(name);
+		if (cm != null) {
+			unregisterCommand(name);
+			//registerCommand0(name, DisabledCommand.INSTANCE.getInstance());
+		}
+	}
+
 	public void registerCommand(String name, Command command) {
-		commands.put(name, command);
+		if (command == null) return;
+		if (!commands.containsKey(name)) commands.put(name, command);
 		if (!command.isRegistered()) {
 			SimpleCommandMap c = ReflectionUtils.INSTANCE.getCommandMap();
 			command.register(c);
-			c.register(name, command);
+			c.register(getName().toLowerCase(), command);
 		}
 
+	}
+
+	private void registerCommand0(String name, Command command) {
+		SimpleCommandMap c = ReflectionUtils.INSTANCE.getCommandMap();
+		command.register(c);
+		c.register(name, getName().toLowerCase(), command);
 	}
 
 	public boolean unregisterCommand(String name) {
 		Command command = commands.get(name);
 		if (command == null) return false;
+		command.unregister(null);
+
+		final SimpleCommandMap c = ReflectionUtils.INSTANCE.getCommandMap();
+
+		final HashMap<String, Command> kc = ReflectionUtils.INSTANCE.getFieldValue(c, "knownCommands");
+		final String n = command.getName(), l = command.getLabel();
+		final String prefix = getName().toLowerCase() + ":";
+		PluginCommand cmm = null;
+		cmm = (PluginCommand) kc.remove(n);
+		if (cmm != null && cmm.getPlugin() != this) {
+			kc.put(n, cmm);
+		}
+		kc.remove(l);
+
+		for (String a : command.getAliases()) {
+			cmm = (PluginCommand) kc.remove(a);
+			if (cmm != null && cmm.getPlugin() != this) kc.put(a, cmm);
+			cmm = (PluginCommand) kc.remove(prefix + a);
+			if (cmm != null && cmm.getPlugin() != this) kc.put(a, cmm);
+		}
 		return command.unregister(null);
 	}
 
