@@ -63,6 +63,7 @@ public abstract class KotlinPlugin extends JavaPlugin {
 		       Arrays.deepToString((Object[]) o) :
 		       o instanceof String ? (String) o : String.valueOf(o);
 	}
+
 	/**
 	 * log level [{@link java.util.logging.Level#FINE}]
 	 *
@@ -92,7 +93,9 @@ public abstract class KotlinPlugin extends JavaPlugin {
 
 	/**
 	 * get file in config folder
+	 *
 	 * @param path filename
+	 *
 	 * @return File object in config folder
 	 */
 	public File getFile(String path) {
@@ -100,6 +103,7 @@ public abstract class KotlinPlugin extends JavaPlugin {
 	}
 
 	public void enableCommand(String name) {
+		name = name.toLowerCase();
 		Command cm = commands.get(name);
 		if (cm != null) {
 			//unregisterCommand(name);
@@ -117,6 +121,7 @@ public abstract class KotlinPlugin extends JavaPlugin {
 	}
 
 	public void registerCommand(String name, Command command) {
+		name = name.toLowerCase();
 		if (command == null) return;
 		if (!commands.containsKey(name)) commands.put(name, command);
 		if (!command.isRegistered()) {
@@ -128,12 +133,14 @@ public abstract class KotlinPlugin extends JavaPlugin {
 	}
 
 	private void registerCommand0(String name, Command command) {
+		name = name.toLowerCase();
 		SimpleCommandMap c = ReflectionUtils.INSTANCE.getCommandMap();
 		command.register(c);
 		c.register(name, getName().toLowerCase(), command);
 	}
 
 	public boolean unregisterCommand(String name) {
+		name = name.toLowerCase();
 		Command command = commands.get(name);
 		if (command == null) return false;
 		command.unregister(null);
