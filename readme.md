@@ -9,11 +9,13 @@ a core plugin for my plugins with [Kotlin](https://kotlinlang.org) feature
 |`chat`   | None    | `/chat <player> <message>` |`bukcore.chat`
 |`gc`     | None    | `/gc`             |`bukcore.gc`
 |`itemdata`| None   | `/itemdata [json NBT]`     |`bukcore.itemdata`
-|`loadchunk`| None   | `/loadchunk <area> [period] [count]`     |`bukcore.itemdata`
-|`openchest`| `oc`  | `/openchest [x] [y] [z] [world]`      | `bukcore.openchest`
-|`pickblock`| `pick`| `/pickblock`      | `bukcore.pickblock`
-|`rainbowchat`| `rc`| `/rainbowchat <message>`    | `bukcore.rainbowchat`
-|`randomteleport`| `rtp`| `/randomteleport`      | `bukcore.rtp`
+|`loadchunk`| None  | `/loadchunk <area> [period] [count]`     |`bukcore.itemdata`
+|`openchest`| `oc`  | `/openchest [x] [y] [z] [world]`  | `bukcore.openchest`
+|`pickblock`| `pick`| `/pickblock`                      | `bukcore.pickblock`
+|`rainbowchat`| `rc`| `/rainbowchat <message>`          | `bukcore.rainbowchat`
+|`randomteleport`| `rtp`| `/randomteleport`             | `bukcore.rtp`
+|`sortinventory` |`sortinv`| `/sortinventory [player]`  | `bukcore.sortinv`
+| | | `/sortinventory [x] [y] [z] [world]`      | `bukcore.sortinv`
 
 #### Command description
 + `/bukcore`
@@ -49,6 +51,7 @@ a core plugin for my plugins with [Kotlin](https://kotlinlang.org) feature
 + `/pickblock` \: pick up looking block and destroy it silently
 + `/rainbowchat <message>` \: send a message to all online player
 + `/randomteleport` \: teleport to random location in the world
++ `/sortinventory [player]` \: sort a player inventory 
 
 ### Build from source
 + build Bukcore with kotlin stdlib
@@ -61,3 +64,14 @@ a core plugin for my plugins with [Kotlin](https://kotlinlang.org) feature
     gradlew build && gradlew jar
     ```
     output file : `build/libs/bukcore-<version>.jar`
+    
+### for developer 
+   > please use `bukcore-<version>.jar` due `kotlin libs` might hide our classes  
++ to build
+    ```shell script
+    gradlew build && gradlew all
+    ```
+    - `build/libs/bukcore-<version>.jar` : a file used to import as library
+    - `build/libs/bukcore-<version>-source.jar` : a file used to view original source code
+    - `build/libs/bukcore-<version>-full.jar` : a file used to run in server
+    
