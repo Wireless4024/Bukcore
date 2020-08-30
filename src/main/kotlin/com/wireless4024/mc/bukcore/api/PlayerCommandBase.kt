@@ -33,6 +33,7 @@
 package com.wireless4024.mc.bukcore.api
 
 import com.wireless4024.mc.bukcore.internal.AlwaysEmptyMutableList
+import org.bukkit.ChatColor
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -41,7 +42,7 @@ interface PlayerCommandBase : CommandBase {
 
 	override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<String>): Boolean {
 		if (sender is Player) return onCommand(sender, command, label, args)
-		sender.sendMessage(plugin["message.need-player"] as String? ?: "You must be a player to use this command")
+		sender.sendMessage(ChatColor.RED.toString() + (plugin["message.need-player"] as String? ?: "You must be a player to use") + " $label")
 		return true
 	}
 
