@@ -37,7 +37,10 @@ openchest:
   # enable to open a chest silently
   # Note : this will duplicate stackable item when right click
   silent: true
-
+sortinv:
+  # default: sort item by comparing id/data/amount
+  # merge  : merge item inventory when sorting (require PowerNBT)
+  mode: merge
 # for translation
 message:
 

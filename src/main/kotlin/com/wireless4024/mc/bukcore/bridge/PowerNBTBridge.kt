@@ -49,7 +49,7 @@ object PowerNBTBridge : Bridge {
 	private var _plugin: Plugin? = null
 
 	override val available: Boolean
-		get() = plugin != null && plugin?.isEnabled == true
+		get() = plugin != null // && plugin?.isEnabled == true
 
 	override val plugin: Plugin?
 		get() = _plugin

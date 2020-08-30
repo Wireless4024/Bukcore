@@ -49,6 +49,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.PlayerInventory
 import java.util.*
 import kotlin.Comparator
+import kotlin.math.min
 
 class SortInventory(override val plugin: KotlinPlugin) : CommandBase {
 	companion object {
@@ -66,10 +67,10 @@ class SortInventory(override val plugin: KotlinPlugin) : CommandBase {
 			val data = o1.data.data - o2.data.data
 			if (data != 0) return@Comparator data
 
-			if (!PowerNBTBridge.available) return@Comparator 0
+			if (!PowerNBTBridge.available) return@Comparator o2.amount - o1.amount
 
-			val nbt = PowerNBT.getApi().read(o2).toString().hashCode() -
-			          PowerNBT.getApi().read(o1).toString().hashCode()
+			val nbt = PowerNBT.getApi().read(o2)?.toString().hashCode() -
+			          PowerNBT.getApi().read(o1)?.toString().hashCode()
 			if (nbt != 0) return@Comparator nbt
 
 			return@Comparator o2.amount - o1.amount
@@ -94,6 +95,20 @@ class SortInventory(override val plugin: KotlinPlugin) : CommandBase {
 			                  PowerNBT.getApi().read(o1)?.toString().hashCode()
 		}
 
+		private fun defaultSort(inv: Inventory) {
+			inv.contents = inv.contents.apply {
+				sortWith(COMPARATOR)
+			}
+		}
+
+		// player inv sorting
+		private fun defaultSort0(inv: Inventory) {
+			inv.contents = inv.contents.apply {
+				sortWith(COMPARATOR, 0, 9)
+				sortWith(COMPARATOR, 9, 36)
+			}
+		}
+
 		@ExperimentalStdlibApi
 		private fun sort(inv: Inventory) {
 			val map = TreeMap<ItemStack, Int>(ITEMID_COMPARATOR) // <id, amount>
@@ -113,20 +128,30 @@ class SortInventory(override val plugin: KotlinPlugin) : CommandBase {
 		}
 
 		val PADDING_ITEM = ItemStack(KNOWLEDGE_BOOK, KNOWLEDGE_BOOK.maxStackSize)
+
+		// player inv sorting
 		private fun sort0(inv: Inventory) {
 			val contents = inv.contents
 			val hotbar = UniqueSortedArrayList<ItemStack?>(ITEMID_COMPARATOR)
 			for (i in 0..8)
 				hotbar.add(contents[i])
 			val map = TreeMap<ItemStack, Int>(ITEMID_COMPARATOR) // <id, amount>
-			for (item: ItemStack? in contents) {
-				if (item == null) continue
+			for (i in (0 until (min(36, contents.size)))) {
+				val item = contents[i] ?: continue
 				if (item in map)
 					map[item] = map[item]!! + item.amount
 				else
 					map[item] = item.amount
 			}
-			inv.clear()
+			/*for (item: ItemStack? in contents) {
+				if (item == null) continue
+				if (item in map)
+					map[item] = map[item]!! + item.amount
+				else
+					map[item] = item.amount
+			}*/
+			for (i in 0..35)
+				inv.clear(i)
 			var succ = 0
 			for (item in hotbar) {
 				if (item != null) {
@@ -160,7 +185,7 @@ class SortInventory(override val plugin: KotlinPlugin) : CommandBase {
 
 	@ExperimentalStdlibApi
 	override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<String>): Boolean {
-		if (sender.hasPermission("bukcore.openchest")) {
+		if (sender.hasPermission("bukcore.sortinventory")) {
 			var inv: Inventory? = null
 
 			if (args.isNotEmpty()) {
@@ -193,11 +218,18 @@ class SortInventory(override val plugin: KotlinPlugin) : CommandBase {
 				sender.sendMessage("${plugin["message.cant-find"]} ${plugin["message.chest"]}")
 				return true
 			}
-
-			if (inv is PlayerInventory)
-				sort0(inv)
-			else
-				sort(inv)
+			if (plugin["sortinv.mode"] == "merge" && PowerNBTBridge.available)
+				if (inv is PlayerInventory)
+					sort0(inv)
+				else
+					sort(inv)
+			else {
+				if (inv is PlayerInventory)
+					defaultSort0(inv)
+				else
+					defaultSort(inv)
+			}
+			sender.sendMessage("inventory has been sorted")
 		}
 		return true
 	}
