@@ -33,9 +33,9 @@
 
 package com.wireless4024.mc.bukcore.api
 
-import com.wireless4024.mc.bukcore.Bukcore
 import com.wireless4024.mc.bukcore.internal.AlwaysEmptyMutableList
 import com.wireless4024.mc.bukcore.utils.BlockUtils
+import com.wireless4024.mc.bukcore.utils.ReflectionUtils
 import org.bukkit.Bukkit
 import org.bukkit.Server
 import org.bukkit.command.*
@@ -116,10 +116,11 @@ interface CommandBase : CommandExecutor, TabCompleter {
 	 */
 	fun register(plugin: JavaPlugin? = null, name: String? = null) {
 		val p = (plugin ?: this.plugin)
-		val n = name ?: this::class.simpleName?.toLowerCase()
-		if (p is Bukcore)
-			p.info("registering command $n")
-		val cm = p.getCommand(n)
+		val n = name ?: this::class.simpleName!!.toLowerCase()
+
+		val cm = p.getCommand(n) ?: ReflectionUtils.newPluginCommand(n, p)
+		if (p is KotlinPlugin)
+			p.registerCommand(n, cm)
 		cm.executor = this
 		cm.tabCompleter = this
 	}

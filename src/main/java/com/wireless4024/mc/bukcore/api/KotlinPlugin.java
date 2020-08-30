@@ -35,6 +35,7 @@ package com.wireless4024.mc.bukcore.api;
 import com.wireless4024.mc.bukcore.utils.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
+import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -76,12 +77,19 @@ public abstract class KotlinPlugin extends JavaPlugin {
 	}
 
 	public void registerCommand(String name, Command command) {
-		commands.put(name, command); if (!command.isRegistered()) command.register(
-				ReflectionUtils.INSTANCE.getCommandMap());
+		commands.put(name, command);
+		if (!command.isRegistered()) {
+			SimpleCommandMap c = ReflectionUtils.INSTANCE.getCommandMap();
+			command.register(c);
+			c.register(name, command);
+		}
+
 	}
 
 	public boolean unregisterCommand(String name) {
-		Command command = commands.get(name); if (command == null) return false; return command.unregister(null);
+		Command command = commands.get(name);
+		if (command == null) return false;
+		return command.unregister(null);
 	}
 
 	/**
@@ -155,7 +163,8 @@ public abstract class KotlinPlugin extends JavaPlugin {
 					}
 				}
 			};
-		} return Bukkit.getScheduler().callSyncMethod(this, task);
+		}
+		return Bukkit.getScheduler().callSyncMethod(this, task);
 	}
 
 	/**
@@ -310,8 +319,10 @@ plugin.lazyRun<Int>(1L, 0) { value, cancel ->
 	 * @param job    a task to run
 	 */
 	public <T> void lazyRun(final long period, final T supply, final BooleanFunction<T> job) {
-		AtomicBoolean cancel = new AtomicBoolean(false); runTask(period, ()->{
-			T value = job.apply(supply, cancel); if (!cancel.get()) lazyRun(period, value, job);
+		AtomicBoolean cancel = new AtomicBoolean(false);
+		runTask(period, ()->{
+			T value = job.apply(supply, cancel);
+			if (!cancel.get()) lazyRun(period, value, job);
 		});
 	}
 
@@ -323,8 +334,10 @@ plugin.lazyRun<Int>(1L, 0) { value, cancel ->
 	 * @param job    a task to run
 	 */
 	public <T> void lazyRunAsync(final long period, final T supply, final BooleanFunction<T> job) {
-		AtomicBoolean cancel = new AtomicBoolean(false); runAsync(period, ()->{
-			T value = job.apply(supply, cancel); if (!cancel.get()) lazyRunAsync(period, value, job);
+		AtomicBoolean cancel = new AtomicBoolean(false);
+		runAsync(period, ()->{
+			T value = job.apply(supply, cancel);
+			if (!cancel.get()) lazyRunAsync(period, value, job);
 		});
 	}
 
