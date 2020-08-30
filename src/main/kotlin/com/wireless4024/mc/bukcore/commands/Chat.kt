@@ -67,6 +67,6 @@ class Chat(override val plugin: KotlinPlugin) : CommandBase {
 	                           alias: String,
 	                           args: Array<String>): MutableList<String> {
 		if (args.isEmpty()) return AlwaysEmptyMutableList.get()
-		return if (args.size == 1) super.getPlayers(sender, args.first()) else mutableListOf(args.last())
+		return if (args.size == 1) CommandBase.getPlayers(sender, args.first()) else mutableListOf(args.last())
 	}
 }

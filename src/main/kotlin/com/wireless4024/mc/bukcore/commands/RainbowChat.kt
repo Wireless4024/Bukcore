@@ -71,7 +71,7 @@ class RainbowChat(override val plugin: KotlinPlugin) : CommandBase {
 		return true
 	}
 
-	fun String.isAlpha(): Boolean {
+	private fun String.isAlpha(): Boolean {
 		for (c in this)
 			if (c !in 'a'..'z' && c !in 'A'..'Z' && c !in '0'..'9' && c != ' ' && c != '§')
 				return false
@@ -83,6 +83,6 @@ class RainbowChat(override val plugin: KotlinPlugin) : CommandBase {
 	                           alias: String,
 	                           args: Array<String>): MutableList<String> {
 		if (args.isEmpty()) return AlwaysEmptyMutableList.get()
-		return if (args.size == 1) super.getPlayers(sender, args.first()) else mutableListOf(args.last())
+		return if (args.size == 1) CommandBase.getPlayers(sender, args.first()) else mutableListOf(args.last())
 	}
 }
