@@ -114,6 +114,7 @@ interface CommandBase : CommandExecutor, TabCompleter {
 	 * @param plugin the reference to the plugin
 	 * @param name command name or null to use class name
 	 */
+	@Deprecated(replaceWith = ReplaceWith("this.register(name)"), message = "this method will be removed in the future")
 	fun register(plugin: JavaPlugin? = null, name: String? = null) {
 		val p = (plugin ?: this.plugin)
 		val n = name ?: this::class.simpleName!!.toLowerCase()
@@ -123,5 +124,15 @@ interface CommandBase : CommandExecutor, TabCompleter {
 			p.registerCommand(n, cm)
 		cm.executor = this
 		cm.tabCompleter = this
+	}
+
+	fun register(name: String? = null): PluginCommand {
+		val n = name ?: this::class.simpleName!!.toLowerCase()
+
+		return (plugin.getCommand(n) ?: ReflectionUtils.newPluginCommand(n, plugin)).apply {
+			this@CommandBase.plugin.registerCommand(n, this)
+			executor = this@CommandBase
+			tabCompleter = this@CommandBase
+		}
 	}
 }
