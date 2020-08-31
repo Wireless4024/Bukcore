@@ -34,10 +34,10 @@ package com.wireless4024.mc.bukcore.commands
 
 import com.wireless4024.mc.bukcore.api.CommandBase
 import com.wireless4024.mc.bukcore.api.KotlinPlugin
-import com.wireless4024.mc.bukcore.bridge.PowerNBTBridge
+import com.wireless4024.mc.bukcore.bridge.NBTAPIBridge
 import com.wireless4024.mc.bukcore.utils.BlockUtils
 import com.wireless4024.mc.bukcore.utils.UniqueSortedArrayList
-import me.dpohvar.powernbt.PowerNBT
+import de.tr7zw.nbtapi.NBTItem
 import org.bukkit.Bukkit
 import org.bukkit.Material.KNOWLEDGE_BOOK
 import org.bukkit.block.Chest
@@ -67,10 +67,9 @@ class SortInventory(override val plugin: KotlinPlugin) : CommandBase {
 			val data = o1.data.data - o2.data.data
 			if (data != 0) return@Comparator data
 
-			if (!PowerNBTBridge.available) return@Comparator o2.amount - o1.amount
+			if (!NBTAPIBridge.available) return@Comparator o2.amount - o1.amount
 
-			val nbt = PowerNBT.getApi().read(o2)?.toString().hashCode() -
-			          PowerNBT.getApi().read(o1)?.toString().hashCode()
+			val nbt = NBTItem(o1).toString().compareTo(NBTItem(o2).toString())
 			if (nbt != 0) return@Comparator nbt
 
 			return@Comparator o2.amount - o1.amount
@@ -89,10 +88,9 @@ class SortInventory(override val plugin: KotlinPlugin) : CommandBase {
 			val data = o1.data.data - o2.data.data
 			if (data != 0) return@Comparator data
 
-			if (!PowerNBTBridge.available) return@Comparator 0
+			if (!NBTAPIBridge.available) return@Comparator 0
 
-			return@Comparator PowerNBT.getApi().read(o2)?.toString().hashCode() -
-			                  PowerNBT.getApi().read(o1)?.toString().hashCode()
+			return@Comparator NBTItem(o1).toString().compareTo(NBTItem(o2).toString())
 		}
 
 		private fun defaultSort(inv: Inventory) {
@@ -218,7 +216,7 @@ class SortInventory(override val plugin: KotlinPlugin) : CommandBase {
 				sender.sendMessage("${plugin["message.cant-find"]} ${plugin["message.chest"]}")
 				return true
 			}
-			if (plugin["sortinv.mode"] == "merge" && PowerNBTBridge.available)
+			if (plugin["sortinv.mode"] == "merge" && NBTAPIBridge.available)
 				if (inv is PlayerInventory)
 					sort0(inv)
 				else

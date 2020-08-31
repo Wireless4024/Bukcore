@@ -35,17 +35,22 @@ package com.wireless4024.mc.bukcore.commands
 import com.wireless4024.mc.bukcore.Bukcore
 import com.wireless4024.mc.bukcore.api.KotlinPlugin
 import com.wireless4024.mc.bukcore.api.PlayerCommandBase
-import com.wireless4024.mc.bukcore.bridge.PowerNBTBridge
+import com.wireless4024.mc.bukcore.bridge.NBTAPIBridge
 import com.wireless4024.mc.bukcore.internal.AlwaysEmptyMutableList
 import com.wireless4024.mc.bukcore.utils.BlockUtils
-import me.dpohvar.powernbt.PowerNBT
-import me.dpohvar.powernbt.api.NBTCompound
+import de.tr7zw.nbtapi.NBTContainer
+import de.tr7zw.nbtapi.NBTItem
+import de.tr7zw.nbtapi.NBTReflectionUtil
+import de.tr7zw.nbtapi.NBTTileEntity
+import de.tr7zw.nbtapi.utils.nmsmappings.ReflectionMethod.COMPOUND_REMOVE_KEY
 import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.Material.*
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemStack
+import org.bukkit.material.MaterialData
 import org.bukkit.plugin.Plugin
 
 /**
@@ -64,30 +69,32 @@ class PickBlock(override val plugin: KotlinPlugin) : PlayerCommandBase {
 				player.sendMessage("${ChatColor.RED}${plugin["message.cant-find"]} ${plugin["message.block"]}")
 				return true
 			}
-			val item = block.state.data.toItemStack(1)
-			val plugin: Plugin? = PowerNBTBridge.plugin
+			var item = block.state.data.toItemStack(1)
+			val plugin: Plugin? = NBTAPIBridge.plugin
 
-			if (item.type == SIGN_POST || item.type == WALL_SIGN)
-				item.type = SIGN
+			if (item.type == SIGN_POST || item.type == WALL_SIGN) {
+				item= ItemStack(SIGN)
+			}
 
-			if (plugin != null) {
-				val nbt = PowerNBT.getApi().read(block)
-				nbt.remove("x")
-				nbt.remove("y")
-				nbt.remove("z")
-				if (item.type != SIGN) // this bug :C
-					nbt.remove("id")
-				val newNbt = NBTCompound()
-				newNbt["BlockEntityTag"] = nbt
-				PowerNBT.getApi().write(item, newNbt)
+			val blockState = block.state
+			val blockHasNBT = blockState.javaClass.simpleName != "CraftBlockState"
+			if (plugin != null && blockState != null && blockHasNBT) {
+				val nbt = NBTTileEntity(blockState).compound
+				COMPOUND_REMOVE_KEY.run(nbt, "x")
+				COMPOUND_REMOVE_KEY.run(nbt, "y")
+				COMPOUND_REMOVE_KEY.run(nbt, "z")
+				val newNbt = NBTItem(item)
+				NBTReflectionUtil.set(newNbt, "BlockEntityTag", nbt)
+				newNbt.applyNBT(item)
 				item.itemMeta = item.itemMeta.apply {
 					lore = mutableListOf("picked")
 				}
 				Bukcore.getInstance()(1) {
-					PowerNBT.getApi().write(block, NBTCompound())
-					block.setType(Material.AIR, false)
+					NBTReflectionUtil.setTileEntityNBTTagCompound(blockState, NBTContainer().compound)
+					block.setType(AIR, false)
 				}
-			}
+			} else if (!blockHasNBT)
+				block.setType(AIR, false)
 			val inv = player.inventory
 			inv.itemInMainHand = item
 		}

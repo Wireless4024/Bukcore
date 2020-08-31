@@ -5,7 +5,7 @@ prefix: Bukcore
 load: STARTUP
 authors: [Wireless4024]
 description: Core plugin for plugins written by Wireless4024
-softdepend: [PowerNBT]
+softdepend: [NBTAPI]
 commands:
   chat:
     description: force player to say a message

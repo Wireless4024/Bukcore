@@ -33,6 +33,7 @@
 
 package com.wireless4024.mc.bukcore.utils
 
+import org.bukkit.entity.Player
 import java.util.*
 
 /**
@@ -118,6 +119,8 @@ public interface Utils {
 				this[i] = func(this[i])
 			return this
 		}
+
+		inline fun <T, reified R> Array<T>.mapToArray(func: (T) -> R): Array<R> = Array(this.size) { func(this[it]) }
 
 		/**
 		 * update all elements in list with element location
@@ -243,4 +246,8 @@ public interface Utils {
 
 		fun <T : Comparable<T>> List<T>.binaryContains(element: T?) = this.binarySearch(element) >= 0
 	}
+}
+
+fun Player.sendMessage(o: Any?) {
+	this.sendMessage(if (o is Array<*>) o.contentDeepToString() else if (o is String) o else o?.toString())
 }

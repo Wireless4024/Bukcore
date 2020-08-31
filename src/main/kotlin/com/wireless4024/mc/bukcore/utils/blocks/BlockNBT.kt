@@ -30,29 +30,30 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.wireless4024.mc.bukcore.bridge
+package com.wireless4024.mc.bukcore.utils.blocks
 
-import com.wireless4024.mc.bukcore.Bukcore
-import org.bukkit.plugin.Plugin
+import com.wireless4024.mc.bukcore.bridge.toHashMap
+import com.wireless4024.mc.bukcore.bridge.toNBTCompound
+import de.tr7zw.nbtapi.NBTReflectionUtil
+import de.tr7zw.nbtapi.NBTTileEntity
+import org.bukkit.block.Block
 
-/**
- * a class to check if plugin PowerNBT is available
- *
- * @author Wireless4024
- * @version 0.1
- * @since 0.1
- */
-object PowerNBTBridge : Bridge {
+object BlockNBT {
 
-	override val name = "PowerNBT"
+	fun Block.readNBTMap(): HashMap<String, Any>? {
+		if (this.state.javaClass.simpleName == "CraftBlockState") return null
+		return NBTTileEntity(this.state).toHashMap()
+	}
 
-	private var _plugin: Plugin? = null
-
-	override val available: Boolean
-		get() = plugin != null // && plugin?.isEnabled == true
-
-	override val plugin: Plugin?
-		get() = _plugin
-		        ?: (Bukcore.INSTANCE?.server?.pluginManager?.getPlugin("PowerNBT"))?.also { _plugin = it }
-
+	fun Block.writeNBTMap(nbt: Map<String, Any>?): Boolean {
+		val bs = this.state
+		if (nbt == null || nbt.isEmpty() || bs.javaClass.simpleName == "CraftBlockState") return false
+		return try {
+			NBTReflectionUtil.setTileEntityNBTTagCompound(bs, nbt.toNBTCompound().compound)
+			true
+		} catch (t: Throwable) {
+			t.printStackTrace()
+			false
+		}
+	}
 }

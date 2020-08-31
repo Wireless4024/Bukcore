@@ -32,11 +32,13 @@
 
 package com.wireless4024.mc.bukcore.utils
 
+import com.wireless4024.mc.bukcore.utils.Utils.Companion.mapToArray
 import org.bukkit.Bukkit
 import org.bukkit.command.PluginCommand
 import org.bukkit.command.SimpleCommandMap
 import org.bukkit.plugin.Plugin
 import java.lang.reflect.Field
+import java.lang.reflect.Method
 
 object ReflectionUtils {
 
@@ -55,20 +57,83 @@ object ReflectionUtils {
 
 	fun getPrivateField(obj: Any?, fieldName: String): Field? {
 		return if (obj == null) null else try {
-			if (obj is Class<*>) obj.getDeclaredField(fieldName)
-			else obj.javaClass.getDeclaredField(fieldName)
+			var clazz: Class<*>? = if (obj is Class<*>) obj else obj.javaClass
+			var field: Field? = clazz!!.getDeclaredField(fieldName)
+			while (clazz != null && field == null) {
+				clazz = clazz.superclass
+				field = clazz.getDeclaredField(fieldName)
+			}
+
+			field
 		} catch (t: Throwable) {
 			null
 		}
 	}
 
-	fun <T> getFieldValue(obj: Any, fieldName: String): T? {
+	fun getPrivateMethod(obj: Any?, methodName: String, vararg type: Class<*>): Method? {
+		return if (obj == null) null else try {
+			if (obj is Class<*>) obj.getDeclaredMethod(methodName, *type)
+			else obj.javaClass.getDeclaredMethod(methodName, *type)
+		} catch (t: Throwable) {
+			null
+		}
+	}
+
+	fun getPrivateMethod0(obj: Any?, methodName: String): Method? {
+		return if (obj == null) null else try {
+			if (obj is Class<*>) obj.getDeclaredMethod(methodName)
+			else obj.javaClass.getDeclaredMethod(methodName)
+		} catch (t: Throwable) {
+			null
+		}
+	}
+
+	fun getPrivateMethod1(obj: Any?, methodName: String, type1: Class<*>): Method? {
+		return if (obj == null) null else try {
+			if (obj is Class<*>) obj.getDeclaredMethod(methodName, type1)
+			else obj.javaClass.getDeclaredMethod(methodName, type1)
+		} catch (t: Throwable) {
+			null
+		}
+	}
+
+	fun getPrivateMethod2(obj: Any?, methodName: String, type1: Class<*>, type2: Class<*>): Method? {
+		return if (obj == null) null else try {
+			if (obj is Class<*>) obj.getDeclaredMethod(methodName, type1, type2)
+			else obj.javaClass.getDeclaredMethod(methodName, type1, type2)
+		} catch (t: Throwable) {
+			null
+		}
+	}
+
+	fun <T> getFieldValue(obj: Any, fieldName: String, clazz: Class<*>? = null): T? {
 		@Suppress("UNCHECKED_CAST")
-		return getPrivateField(obj, fieldName)?.run {
+		return getPrivateField(clazz ?: obj, fieldName)?.run {
 			isAccessible = true
 			val value = get(obj)
 			isAccessible = false
 			value
-		} as? T
+		} as T?
+	}
+
+	fun <T> callMethod(obj: Any, name: String, vararg args: Any): T? {
+		@Suppress("UNCHECKED_CAST")
+		return when (args.size) {
+			0 -> getPrivateMethod0(obj, name)
+			1 -> getPrivateMethod1(obj, name, args[0].javaClass)
+			2 -> getPrivateMethod2(obj, name, args[0].javaClass, args[1].javaClass)
+			else -> getPrivateMethod(obj, name, *args.mapToArray { it.javaClass })
+		}?.run {
+			try {
+				isAccessible = true
+				return if (returnType == Void.TYPE) {
+					invoke(obj, *args)
+					null
+				} else invoke(obj, *args) as? T
+			} finally {
+				isAccessible = false
+			}
+
+		}
 	}
 }

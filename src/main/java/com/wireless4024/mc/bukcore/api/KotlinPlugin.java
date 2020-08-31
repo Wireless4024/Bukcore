@@ -45,6 +45,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -146,8 +147,7 @@ public abstract class KotlinPlugin extends JavaPlugin {
 		command.unregister(null);
 
 		final SimpleCommandMap c = ReflectionUtils.INSTANCE.getCommandMap();
-
-		final HashMap<String, Command> kc = ReflectionUtils.INSTANCE.getFieldValue(c, "knownCommands");
+		final Map<String, Command> kc = ReflectionUtils.INSTANCE.getFieldValue(c, "knownCommands",SimpleCommandMap.class);
 		final String n = command.getName(), l = command.getLabel();
 		final String prefix = getName().toLowerCase() + ":";
 		PluginCommand cmm = null;

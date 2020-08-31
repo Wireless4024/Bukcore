@@ -32,10 +32,10 @@
 
 package com.wireless4024.mc.bukcore.serializable
 
+import com.wireless4024.mc.bukcore.utils.blocks.BlockNBT.readNBTMap
+import com.wireless4024.mc.bukcore.utils.blocks.BlockNBT.writeNBTMap
 import com.wireless4024.mc.bukcore.utils.readMap
 import com.wireless4024.mc.bukcore.utils.writeJsonMap
-import me.dpohvar.powernbt.api.NBTCompound
-import me.dpohvar.powernbt.api.NBTManager
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Material.*
@@ -47,9 +47,8 @@ import java.io.ObjectOutputStream
 /**
  * a prototype class for any block serialization in Bukcore.
  */
-@Suppress("DEPRECATION") class SerializableBlock(baseOffset: Location,
-                                                 block: Block,
-                                                 private val nbtManager: NBTManager? = null) {
+@Suppress("DEPRECATION")
+class SerializableBlock(baseOffset: Location,  block: Block ) {
 
 	companion object {
 
@@ -72,7 +71,7 @@ import java.io.ObjectOutputStream
 			output.writeByte(-1)
 		}
 
-		fun writeBlock(output: ObjectOutputStream, base: Location, block: Block, nbtManager: NBTManager? = null) {
+		fun writeBlock(output: ObjectOutputStream, base: Location, block: Block) {
 			val bloc = block.location
 
 			if (block.type === AIR) {
@@ -95,17 +94,11 @@ import java.io.ObjectOutputStream
 			@Suppress("DEPRECATION")
 			output.writeByte(block.data.toInt())
 
-			output.writeJsonMap(if (!type.isBlock) null else nbtManager?.read(block)?.toHashMap()?.apply {
-				remove("x")
-				remove("y")
-				remove("z")
-				if (type !== SIGN_POST && type !== WALL_SIGN)
-					remove("id")
-			})
+			output.writeJsonMap(block.readNBTMap())
 			output.flush()
 		}
 
-		fun readBlock(input: ObjectInputStream, base: Location, nbtManager: NBTManager? = null): Boolean {
+		fun readBlock(input: ObjectInputStream, base: Location): Boolean {
 			val magic = input.readByte().toInt()
 			if (magic == -1) return false // skipped
 			if (magic == 0) {
@@ -127,10 +120,8 @@ import java.io.ObjectOutputStream
 
 			val nbt = input.readMap<Any>()
 
-			if (nbt?.isEmpty() == false && nbtManager != null && type.isBlock) {
-				val nbtTag: NBTCompound = nbtManager.read(target)
-				nbtTag.putAll(nbt)
-				nbtManager.write(target, nbtTag)
+			if (nbt?.isEmpty() == false && type.isBlock) {
+				target.writeNBTMap(nbt)
 			}
 			return true
 		}
@@ -152,15 +143,7 @@ import java.io.ObjectOutputStream
 		type = block.type
 
 		if (type.isBlock)
-			nbt = nbtManager?.read(block)?.toHashMap()?.run {
-				remove("x")
-				remove("y")
-				remove("z")
-				if (type !== SIGN_POST && type !== WALL_SIGN)
-					remove("id")
-
-				if (this.isEmpty()) null else this
-			}
+			nbt = block.readNBTMap()
 	}
 
 	@Throws(IOException::class)
@@ -215,10 +198,8 @@ import java.io.ObjectOutputStream
 
 		val nbt = this.nbt
 
-		if (nbt != null && nbtManager != null && type.isBlock) {
-			val nbtTag: NBTCompound = nbtManager.read(target)
-			nbtTag.putAll(nbt)
-			nbtManager.write(target, nbtTag)
+		if (nbt?.isEmpty() == false && type.isBlock) {
+			target.writeNBTMap(nbt)
 		}
 	}
 }

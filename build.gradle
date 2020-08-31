@@ -23,6 +23,10 @@ repositories {
 		name = 'sk89q-repo'
 		url = 'https://maven.enginehub.org/repo/'
 	}
+	maven {
+		name = 'codemc-repo'
+		url = 'https://repo.codemc.org/repository/maven-public/'
+	}
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
@@ -62,7 +66,7 @@ def worldguard = "libs/WorldGuard.jar"
 dependencies {
 	compileOnly 'org.bukkit:bukkit:1.12-R0.1-SNAPSHOT'
 	compileOnly 'com.sk89q.worldedit:worldedit-bukkit:6.1.5'
-	compileOnly files(powernbt)
+	compileOnly 'de.tr7zw:item-nbt-api-plugin:2.5.0'
 	/*if (!new File(bukkit1_12).exists()) {
 		logger.info("downloading bukkit 1.12.2 ...")
 		new URL('https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.12.2.jar')

@@ -32,19 +32,45 @@
 
 package com.wireless4024.mc.bukcore.bridge
 
+import com.wireless4024.mc.bukcore.utils.toJson
+import de.tr7zw.nbtapi.NBTCompound
+import de.tr7zw.nbtapi.NBTContainer
+import de.tr7zw.nbtapi.NBTType.*
 import org.bukkit.plugin.Plugin
 
-/**
- * Bridge class allow to use soft-depend without crashing :D
- *
- * @author Wireless4024
- * @version 0.1
- * @since 0.1
- */
-interface Bridge {
+object NBTAPIBridge : Bridge {
 
-	val name: String
-	val available: Boolean
-		get() = plugin?.isEnabled==true
-	val plugin: Plugin?
+	private var _plugin: Plugin? = null
+
+	override val name: String = "NBTAPI"
+
+	override val plugin: Plugin?
+		get() = _plugin
+		        ?: (org.bukkit.Bukkit.getServer().pluginManager.getPlugin("NBTAPI"))?.also { _plugin = it }
 }
+
+fun NBTCompound.toHashMap(): HashMap<String, Any> {
+	val map = HashMap<String, Any>()
+	loop@ for (it in this.keys) {
+		when (it) {
+			"x", "y", "z", "id" -> continue@loop
+		}
+		@Suppress("NON_EXHAUSTIVE_WHEN")
+		when (this.getType(it)) {
+			NBTTagString -> map[it] = this.getString(it)
+			NBTTagCompound -> map[it] = this.getCompound(it).toHashMap()
+			NBTTagByte -> map[it] = this.getByte(it)
+			NBTTagShort -> map[it] = this.getShort(it)
+			NBTTagInt -> map[it] = this.getInteger(it)
+			NBTTagLong -> map[it] = this.getLong(it)
+			NBTTagFloat -> map[it] = this.getFloat(it)
+			NBTTagDouble -> map[it] = this.getDouble(it)
+			NBTTagByteArray -> map[it] = this.getByteArray(it)
+			NBTTagIntArray -> map[it] = this.getIntArray(it)
+			NBTTagList -> map[it] = this.getCompoundList(it).map(NBTCompound::toHashMap).toTypedArray()
+		}
+	}
+	return map
+}
+
+fun Map<String, Any>.toNBTCompound() = NBTContainer(this.toJson())

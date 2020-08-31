@@ -32,13 +32,14 @@
 
 package com.wireless4024.mc.bukcore.commands
 
-import com.google.gson.Gson
 import com.wireless4024.mc.bukcore.api.KotlinPlugin
 import com.wireless4024.mc.bukcore.api.PlayerCommandBase
-import com.wireless4024.mc.bukcore.bridge.PowerNBTBridge
+import com.wireless4024.mc.bukcore.bridge.NBTAPIBridge
 import com.wireless4024.mc.bukcore.internal.AlwaysEmptyMutableList
-import me.dpohvar.powernbt.PowerNBT
-import me.dpohvar.powernbt.api.NBTCompound
+import com.wireless4024.mc.bukcore.utils.ReflectionUtils
+import com.wireless4024.mc.bukcore.utils.sendMessage
+import de.tr7zw.nbtapi.NBTContainer
+import de.tr7zw.nbtapi.NBTItem
 import org.bukkit.command.Command
 import org.bukkit.entity.Player
 
@@ -53,28 +54,37 @@ class ItemData(override val plugin: KotlinPlugin) : PlayerCommandBase {
 
 	override fun onCommand(player: Player, command: Command, label: String, args: Array<String>): Boolean {
 		if (player.hasPermission("bukcore.itemdata")) {
-			if (!PowerNBTBridge.available) {
-				player.sendMessage("${PowerNBTBridge.name} ${plugin["message.unavailable"]}")
+			if (!NBTAPIBridge.available) {
+				player.sendMessage("${NBTAPIBridge.name} ${plugin["message.unavailable"]}")
 				return true
 			}
 			val item = player.inventory.itemInMainHand
+			@Suppress("DEPRECATION")
 			if (item == null) {
 				player.sendMessage(plugin["message.need-holding-item"] as String)
 				return true
 			}
-			if (args.isNotEmpty()) {
-				@Suppress("UNCHECKED_CAST")
-				val data = Gson().fromJson(args.joinToString(separator = " ", prefix = "", postfix = ""),
-				                           Map::class.java) as Map<out String, *>?
-				if (data != null) {
-					val nbt = PowerNBT.getApi().read(item) ?: NBTCompound()
-					nbt.putAll(data)
-					PowerNBT.getApi().write(item, nbt)
-				} else {
-					player.sendMessage(plugin["message.json-parse-fail"] as String)
+			try {
+				if (args.isNotEmpty()) {
+					val arg = if (args.isEmpty()) "{}" else args.joinToString(separator = " ",
+					                                                          prefix = "",
+					                                                          postfix = "")
+					val nbt = NBTItem(item)
+					if (arg == "null") {
+						ReflectionUtils.getPrivateMethod1(nbt, "setCompound", Object::class.java)?.run {
+							isAccessible = true
+							invoke(nbt, NBTContainer().compound)
+							isAccessible = false
+						}
+					} else if (arg != "{}") {
+						nbt.mergeCompound(NBTContainer(arg))
+					}
+					nbt.applyNBT(item)
 				}
+				player.sendMessage(NBTItem(item))
+			} catch (t: Throwable) {
+				player.sendMessage(plugin["message.need-holding-item"] as String)
 			}
-			player.sendMessage(PowerNBT.getApi().read(item)?.toString() ?: "{}")
 		}
 		return true
 	}

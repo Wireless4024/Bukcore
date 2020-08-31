@@ -33,21 +33,34 @@
 
 package com.wireless4024.mc.bukcore.commands
 
-import com.wireless4024.mc.bukcore.api.CommandBase
+import com.wireless4024.mc.bukcore.Bukcore
 import com.wireless4024.mc.bukcore.api.KotlinPlugin
-import com.wireless4024.mc.bukcore.utils.blocks.Region3D
+import com.wireless4024.mc.bukcore.api.PlayerCommandBase
+import com.wireless4024.mc.bukcore.utils.RelativeBlock
 import org.bukkit.command.Command
-import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * test command
  */
-class Test(override val plugin: KotlinPlugin) : CommandBase {
+class Test(override val plugin: KotlinPlugin) : PlayerCommandBase {
 
-	override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<String>): Boolean {
-		if (sender !is Player) return true
-		Region3D.around(sender.location, (args.firstOrNull()?.toIntOrNull() ?: 10) * 16).lazyLoadChunk(128, 5)
+	val ref = AtomicReference<RelativeBlock>()
+	val data = AtomicInteger(0)
+
+	override fun onCommand(player: Player, command: Command, label: String, args: Array<String>): Boolean {
+		val l = player.location
+		if (args.size > 0)
+			Bukcore.getInstance().enableCommand("randomteleport")
+		else
+			Bukcore.getInstance().disableCommand("randomteleport")
+		/*if (args.firstOrNull()?.startsWith('c') == true || ref.get() == null)
+			ref.set(DirectionOffset(0.0, 2.0, 0.0).toLocation(l).toRelativeBlock(l))
+		else
+			ref.get().place(l)*/
+		//sender.sendMessage(BlockUtils.nearestEntity(sender.location, 10, sender)?.toString())
 		return true
 	}
 }

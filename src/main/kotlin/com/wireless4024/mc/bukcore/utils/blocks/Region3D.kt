@@ -36,7 +36,6 @@ import com.wireless4024.mc.bukcore.Bukcore
 import com.wireless4024.mc.bukcore.internal.AlwaysEmptyMutableList
 import com.wireless4024.mc.bukcore.serializable.SerializableBlock
 import com.wireless4024.mc.bukcore.utils.io.isReady
-import me.dpohvar.powernbt.api.NBTManager
 import org.bukkit.*
 import org.bukkit.block.Block
 import org.bukkit.scheduler.BukkitTask
@@ -133,9 +132,9 @@ open class Region3D(protected val world: World,
 			return i * i
 		}
 
-		fun deserialize(input: ObjectInputStream, base: Location, nbtManager: NBTManager? = null) {
+		fun deserialize(input: ObjectInputStream, base: Location) {
 			while (input.isReady()) {
-				if (SerializableBlock.readBlock(input, base, nbtManager))
+				if (SerializableBlock.readBlock(input, base))
 					if (!SerializableBlock.checkPadding(input))
 						throw StreamCorruptedException("invalid block padding")
 			}
@@ -660,9 +659,7 @@ open class Region3D(protected val world: World,
 
 	override fun equals(other: Any?): Boolean {
 		if (this === other) return true
-		if (javaClass != other?.javaClass) return false
-
-		other as Region3D
+		if (other !is Region3D) return false
 
 		if (world != other.world) return false
 		if (x1 != other.x1) return false
@@ -675,10 +672,10 @@ open class Region3D(protected val world: World,
 		return true
 	}
 
-	fun serialize(output: ObjectOutputStream, base: Location, nbtManager: NBTManager? = null) {
+	fun serialize(output: ObjectOutputStream, base: Location) {
 		SerializableBlock.writeSkip(output)
 		invoke { it ->
-			SerializableBlock.writeBlock(output, base, it, nbtManager)
+			SerializableBlock.writeBlock(output, base, it)
 			SerializableBlock.writePadding(output)
 		}
 		SerializableBlock.writeSkip(output)

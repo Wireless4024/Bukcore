@@ -34,7 +34,6 @@ package com.wireless4024.mc.bukcore.utils
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.wireless4024.mc.bukcore.Bukcore
 import com.wireless4024.mc.bukcore.utils.JsonUtils.LimitedInputStream
 import java.io.*
 import java.util.concurrent.LinkedBlockingQueue
@@ -113,3 +112,5 @@ fun <V> ObjectInputStream.readMap(): Map<String, V>? {
 	                                        Map::class.java) as Map<String, V>
 
 }
+
+fun Any?.toJson() = JsonUtils.GSON_INSTANCE.toJson(this)

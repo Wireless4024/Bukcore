@@ -32,9 +32,10 @@
 
 package com.wireless4024.mc.bukcore.utils
 
-import com.wireless4024.mc.bukcore.bridge.PowerNBTBridge
-import me.dpohvar.powernbt.PowerNBT
-import me.dpohvar.powernbt.api.NBTCompound
+import com.wireless4024.mc.bukcore.bridge.NBTAPIBridge
+import com.wireless4024.mc.bukcore.bridge.toNBTCompound
+import com.wireless4024.mc.bukcore.utils.blocks.BlockNBT.readNBTMap
+import de.tr7zw.nbtapi.NBTReflectionUtil
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.Block
@@ -105,8 +106,15 @@ data class RelativeBlock(val material: Material,
 		block.type = material
 		@Suppress("DEPRECATION")
 		block.data = Direction.destabilize4(direction, thisDirection)
-		if (nbt != null && PowerNBTBridge.available)
-			PowerNBT.getApi().write(block, NBTCompound(nbt))
+		if (nbt != null && nbt.isNotEmpty() && NBTAPIBridge.available) {
+			try {
+				val bs = block.state
+				if (bs.javaClass.simpleName == "BlockEntityTag") return
+				NBTReflectionUtil.setTileEntityNBTTagCompound(bs, nbt.toNBTCompound().compound)
+			} catch (t: Throwable) {
+				t.printStackTrace()
+			}
+		}
 	}
 }
 
@@ -118,9 +126,7 @@ fun Block.toRelativeBlock(base: Location): RelativeBlock {
 	@Suppress("DEPRECATION")
 	val direction: Byte = Direction.normalize4(this.data, looking)
 	val offset: DirectionOffset = DirectionalOffset.from(base, location, looking)
-	val nbt: HashMap<String, Any>? = if (PowerNBTBridge.available) PowerNBT.getApi()
-			.read(this)
-			.toHashMap() else null
+	val nbt: HashMap<String, Any>? = this.readNBTMap()
 
 	return RelativeBlock(material, direction, offset, if (nbt?.isEmpty() != true) nbt else null)
 }
@@ -133,9 +139,7 @@ fun Location.toRelativeBlock(base: Location): RelativeBlock {
 	@Suppress("DEPRECATION")
 	val direction: Byte = Direction.normalize4(block.data, looking)
 	val offset: DirectionOffset = DirectionalOffset.from(base, this, looking)
-	val nbt: HashMap<String, Any>? = if (PowerNBTBridge.available) PowerNBT.getApi()
-			.read(block)
-			.toHashMap() else null
+	val nbt: HashMap<String, Any>? = this.block.readNBTMap()
 
 	return RelativeBlock(material, direction, offset, if (nbt?.isEmpty() != true) nbt else null)
 }
