@@ -99,7 +99,7 @@ class Bukcore : KotlinPlugin() {
 
 	companion object {
 
-		const val VERSION = "0.2"
+		const val VERSION = "0.2.1"
 
 		@JvmSynthetic
 		internal var INSTANCE: Bukcore? = null
