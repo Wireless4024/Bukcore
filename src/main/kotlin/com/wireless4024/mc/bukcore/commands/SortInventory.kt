@@ -157,7 +157,7 @@ class SortInventory(override val plugin: KotlinPlugin) : CommandBase {
 					++succ
 				}
 			}
-			for (i in 1..(9 - succ))
+			for (i in 0..(8 - succ))
 				inv.addItem(PADDING_ITEM)
 			map.forEach { it ->
 				val item = it.key
