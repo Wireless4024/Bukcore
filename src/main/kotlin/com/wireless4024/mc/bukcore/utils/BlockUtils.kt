@@ -167,7 +167,7 @@ object BlockUtils {
 
 	fun nearestEntity(location: Location, area: Double = 200.0): Entity? {
 		return location.world.getNearbyEntities(location, area, area, area)
-				.minBy {
+				.minByOrNull {
 					it.location.distanceSquared(location)
 							.run { if (this != 0.0) this else Double.MAX_VALUE }
 				}

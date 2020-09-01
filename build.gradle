@@ -1,7 +1,7 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
-	id "org.jetbrains.kotlin.jvm" version "1.3.72"
+	id "org.jetbrains.kotlin.jvm" version "1.4.0"
 }
 
 apply plugin: 'java'
@@ -52,36 +52,16 @@ artifacts {
 }
 
 /********************************/
-// path to compile full package
-def powernbt = "libs/PowerNBT.jar"
-if (!new File(powernbt).exists()) {
-	throw new RuntimeException("please download PowerNBT at https://www.spigotmc.org/resources/powernbt.9098/download?version=185893 and put in folder libs before compile")
-}
-// if compile error please download here :
-// https://www.spigotmc.org/resources/powernbt.9098/download?version=185893
-
-def worldguard = "libs/WorldGuard.jar"
+// plugin version
+def bukkit = "1.12-R0.1-SNAPSHOT"
 /********************************/
 
 dependencies {
-	compileOnly 'org.bukkit:bukkit:1.12-R0.1-SNAPSHOT'
+	compileOnly 'org.bukkit:bukkit:' + bukkit
 	compileOnly 'com.sk89q.worldedit:worldedit-bukkit:6.1.5'
+	compileOnly 'com.sk89q.worldguard:worldguard-legacy:6.2'
 	compileOnly 'de.tr7zw:item-nbt-api-plugin:2.5.0'
-	/*if (!new File(bukkit1_12).exists()) {
-		logger.info("downloading bukkit 1.12.2 ...")
-		new URL('https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.12.2.jar')
-				.withInputStream { i -> new File(bukkit1_12).withOutputStream { it << i } }
-		logger.info("done.")
-	}
-	compileOnly files(bukkit1_12)*/
-	if (!new File(worldguard).exists()) {
-		logger.info("downloading worldguard...")
-		new URL('https://media.forgecdn.net/files/2610/618/worldguard-bukkit-6.2.2.jar')
-				.withInputStream { i -> new File(worldguard).withOutputStream { it << i } }
-		logger.info("done.")
-	}
-	compileOnly files(worldguard)
-	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.72"
+	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.0"
 	//  implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.8'
 	testCompile 'org.junit.jupiter:junit-jupiter:5.7.0-M1'
 	// provided by bukkit but not included in our test

@@ -1,7 +1,7 @@
-name: Bukcore
+name: bukcore
 version: @version@
 main: com.wireless4024.mc.bukcore.Bukcore
-prefix: Bukcore
+prefix: bukcore
 load: STARTUP
 authors: [Wireless4024]
 description: Core plugin for plugins written by Wireless4024
