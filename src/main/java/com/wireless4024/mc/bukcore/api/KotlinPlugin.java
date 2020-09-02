@@ -147,7 +147,8 @@ public abstract class KotlinPlugin extends JavaPlugin {
 		command.unregister(null);
 
 		final SimpleCommandMap c = ReflectionUtils.INSTANCE.getCommandMap();
-		final Map<String, Command> kc = ReflectionUtils.INSTANCE.getFieldValue(c, "knownCommands",SimpleCommandMap.class);
+		final Map<String, Command> kc = ReflectionUtils.INSTANCE.getFieldValue(c, "knownCommands",
+		                                                                       SimpleCommandMap.class);
 		final String n = command.getName(), l = command.getLabel();
 		final String prefix = getName().toLowerCase() + ":";
 		PluginCommand cmm = null;
@@ -415,7 +416,7 @@ plugin.lazyRun<Int>(1L, 0) { value, cancel ->
 		});
 	}
 
-	interface BooleanFunction<T> {
+	public interface BooleanFunction<T> {
 		T apply(T value, AtomicBoolean cancel);
 	}
 }
