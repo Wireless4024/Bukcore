@@ -40,13 +40,17 @@ import org.bukkit.plugin.Plugin
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 
+/**
+ * @since 0.2
+ */
 object ReflectionUtils {
 
 	private val commands = getFieldValue<SimpleCommandMap>(Bukkit.getServer().pluginManager, "commandMap")
 	val commandMap get() = commands!!
 
-	private val pluginCommandCon = PluginCommand::class.java.getDeclaredConstructor(String::class.java,
-	                                                                                Plugin::class.java)
+	private val pluginCommandCon = PluginCommand::class.java.getDeclaredConstructor(
+		String::class.java, Plugin::class.java
+	)
 
 	fun newPluginCommand(name: String, owner: Plugin) = pluginCommandCon.run {
 		isAccessible = true
@@ -107,8 +111,7 @@ object ReflectionUtils {
 	}
 
 	fun <T> getFieldValue(obj: Any, fieldName: String, clazz: Class<*>? = null): T? {
-		@Suppress("UNCHECKED_CAST")
-		return getPrivateField(clazz ?: obj, fieldName)?.run {
+		@Suppress("UNCHECKED_CAST") return getPrivateField(clazz ?: obj, fieldName)?.run {
 			isAccessible = true
 			val value = get(obj)
 			isAccessible = false
@@ -117,8 +120,7 @@ object ReflectionUtils {
 	}
 
 	fun <T> callMethod(obj: Any, name: String, vararg args: Any): T? {
-		@Suppress("UNCHECKED_CAST")
-		return when (args.size) {
+		@Suppress("UNCHECKED_CAST") return when (args.size) {
 			0 -> getPrivateMethod0(obj, name)
 			1 -> getPrivateMethod1(obj, name, args[0].javaClass)
 			2 -> getPrivateMethod2(obj, name, args[0].javaClass, args[1].javaClass)

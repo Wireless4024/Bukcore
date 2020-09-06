@@ -34,6 +34,9 @@ package com.wireless4024.mc.bukcore.utils
 
 import java.util.*
 
+/**
+ * @since 0.2
+ */
 class UniqueSortedArrayList<T>(comparator: java.util.Comparator<T?>? = null) : SortedArrayList<T>(comparator), Set<T> {
 
 	override fun add(element: T): Boolean = super.uniqueAdd(element)

@@ -34,6 +34,9 @@ package com.wireless4024.mc.bukcore.utils
 
 import org.bukkit.Location
 
+/**
+ * @since 0.2
+ */
 object Direction {
 
 	const val BASE: Byte = 0

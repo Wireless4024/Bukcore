@@ -38,6 +38,9 @@ import de.tr7zw.nbtapi.NBTReflectionUtil
 import de.tr7zw.nbtapi.NBTTileEntity
 import org.bukkit.block.Block
 
+/**
+ * @since 0.2
+ */
 object BlockNBT {
 
 	fun Block.readNBTMap(): HashMap<String, Any>? {

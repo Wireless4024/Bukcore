@@ -38,6 +38,9 @@ import com.wireless4024.mc.bukcore.utils.JsonUtils.LimitedInputStream
 import java.io.*
 import java.util.concurrent.LinkedBlockingQueue
 
+/**
+ * @since 0.2
+ */
 object JsonUtils {
 
 	private val BAOS_CACHE = LinkedBlockingQueue<ByteArrayOutputStream>()

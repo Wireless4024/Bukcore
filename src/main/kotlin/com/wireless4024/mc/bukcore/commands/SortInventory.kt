@@ -51,6 +51,9 @@ import java.util.*
 import kotlin.Comparator
 import kotlin.math.min
 
+/**
+ * @since 0.2
+ */
 class SortInventory(override val plugin: KotlinPlugin) : CommandBase {
 	companion object {
 
@@ -60,7 +63,7 @@ class SortInventory(override val plugin: KotlinPlugin) : CommandBase {
 			if (o2 === null) return@Comparator -1
 
 			@Suppress("DEPRECATION")
-			val id = o1.typeId - o2.typeId
+			val id = o1.type.id - o2.type.id
 			if (id != 0) return@Comparator id
 
 			@Suppress("DEPRECATION")
@@ -81,7 +84,7 @@ class SortInventory(override val plugin: KotlinPlugin) : CommandBase {
 			if (o2 === null) return@Comparator -1
 
 			@Suppress("DEPRECATION")
-			val id = o1.typeId - o2.typeId
+			val id = o1.type.id - o2.type.id
 			if (id != 0) return@Comparator id
 
 			@Suppress("DEPRECATION")

@@ -32,6 +32,9 @@
 
 package com.wireless4024.mc.bukcore.internal
 
+/**
+ * @since 0.2
+ */
 object AlwaysEmptyMutableList : MutableList<Any> {
 
 	@Suppress("UNCHECKED_CAST")

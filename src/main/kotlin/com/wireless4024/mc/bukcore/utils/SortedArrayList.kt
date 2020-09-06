@@ -34,6 +34,9 @@ package com.wireless4024.mc.bukcore.utils
 
 import java.util.*
 
+/**
+ * @since 0.2
+ */
 open class SortedArrayList<T>(comparator: java.util.Comparator<T?>? = null) : ArrayList<T>() {
 
 	@Suppress("UNCHECKED_CAST")

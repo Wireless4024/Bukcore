@@ -46,6 +46,7 @@ import java.io.ObjectOutputStream
 
 /**
  * a prototype class for any block serialization in Bukcore.
+ * @since 0.2
  */
 @Suppress("DEPRECATION")
 class SerializableBlock(baseOffset: Location,  block: Block ) {

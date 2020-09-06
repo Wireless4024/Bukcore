@@ -38,6 +38,9 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
+/**
+ * @since 0.2
+ */
 interface PlayerCommandBase : CommandBase {
 
 	override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<String>): Boolean {

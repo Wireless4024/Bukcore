@@ -38,6 +38,9 @@ import de.tr7zw.nbtapi.NBTContainer
 import de.tr7zw.nbtapi.NBTType.*
 import org.bukkit.plugin.Plugin
 
+/**
+ * @since 0.2
+ */
 object NBTAPIBridge : Bridge {
 
 	private var _plugin: Plugin? = null

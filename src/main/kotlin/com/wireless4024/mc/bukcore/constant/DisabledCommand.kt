@@ -37,6 +37,9 @@ import com.wireless4024.mc.bukcore.internal.AlwaysEmptyMutableList
 import com.wireless4024.mc.bukcore.utils.ReflectionUtils
 import org.bukkit.ChatColor
 
+/**
+ * @since 0.2
+ */
 object DisabledCommand {
 
 	val instance by lazy {

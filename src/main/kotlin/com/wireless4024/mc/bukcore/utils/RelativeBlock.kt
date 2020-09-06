@@ -40,6 +40,9 @@ import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.Block
 
+/**
+ * @since 0.2
+ */
 object DirectionalOffset {
 
 	fun from(base: Location, target: Location, direction: Byte): DirectionOffset {
@@ -94,18 +97,16 @@ data class DirectionOffset(val left: Double, val forward: Double, val up: Double
 	fun updateLocation(location: Location) = updateLocation(location, Direction.direction4(location))
 }
 
-data class RelativeBlock(val material: Material,
-                         val direction: Byte,
-                         val offset: DirectionOffset,
-                         val nbt: HashMap<String, Any>? = null) {
+data class RelativeBlock(
+	val material: Material, val direction: Byte, val offset: DirectionOffset, val nbt: HashMap<String, Any>? = null
+) {
 
 	fun place(where: Location) {
 		val thisDirection = Direction.direction4(where)
 		val target = offset.toLocation(where, thisDirection)
 		val block = target.block
 		block.type = material
-		@Suppress("DEPRECATION")
-		block.data = Direction.destabilize4(direction, thisDirection)
+		@Suppress("DEPRECATION") block.data = Direction.destabilize4(direction, thisDirection)
 		if (nbt != null && nbt.isNotEmpty() && NBTAPIBridge.available) {
 			try {
 				val bs = block.state
@@ -123,8 +124,7 @@ fun Block.toRelativeBlock(base: Location): RelativeBlock {
 	val looking = Direction.direction4(location)
 	val material: Material = this.type
 
-	@Suppress("DEPRECATION")
-	val direction: Byte = Direction.normalize4(this.data, looking)
+	@Suppress("DEPRECATION") val direction: Byte = Direction.normalize4(this.data, looking)
 	val offset: DirectionOffset = DirectionalOffset.from(base, location, looking)
 	val nbt: HashMap<String, Any>? = this.readNBTMap()
 
@@ -136,8 +136,7 @@ fun Location.toRelativeBlock(base: Location): RelativeBlock {
 	val looking = Direction.direction4(this)
 	val material: Material = block.type
 
-	@Suppress("DEPRECATION")
-	val direction: Byte = Direction.normalize4(block.data, looking)
+	@Suppress("DEPRECATION") val direction: Byte = Direction.normalize4(block.data, looking)
 	val offset: DirectionOffset = DirectionalOffset.from(base, this, looking)
 	val nbt: HashMap<String, Any>? = this.block.readNBTMap()
 
