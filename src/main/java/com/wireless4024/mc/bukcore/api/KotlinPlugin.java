@@ -141,6 +141,10 @@ public abstract class KotlinPlugin extends JavaPlugin {
 	}
 
 	public boolean unregisterCommand(String name) {
+		return unregisterCommand(name, false);
+	}
+
+	public boolean unregisterCommand(String name,boolean purge) {
 		name = name.toLowerCase();
 		Command command = commands.get(name);
 		if (command == null) return false;
@@ -164,6 +168,8 @@ public abstract class KotlinPlugin extends JavaPlugin {
 			cmm = (PluginCommand) kc.remove(prefix + a);
 			if (cmm != null && cmm.getPlugin() != this) kc.put(a, cmm);
 		}
+		if(purge)
+			commands.remove(name);
 		return command.unregister(null);
 	}
 

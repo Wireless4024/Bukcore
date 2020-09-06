@@ -108,3 +108,16 @@ task jarTo {
 test {
 	useJUnitPlatform()
 }
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile)
+		.all {
+			kotlinOptions {
+				freeCompilerArgs += [
+						'-Xno-call-assertions',
+						'-Xno-receiver-assertions',
+						'-Xinline-classes',
+						'-Xno-param-assertions',
+						'-Xassertions=jvm'
+				]
+			}
+		}
