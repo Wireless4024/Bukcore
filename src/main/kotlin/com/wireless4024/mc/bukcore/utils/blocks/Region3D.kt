@@ -66,17 +66,17 @@ import kotlin.math.sqrt
  * @version 0.1
  * @since 0.1
  */
-open class Region3D(protected val world: World,
+open class Region3D(val world: World,
                     x1: Int, x2: Int,
                     y1: Int, y2: Int,
                     z1: Int, z2: Int) {
 
-	protected val x1: Int
-	protected val x2: Int
-	protected val y1: Int
-	protected val y2: Int
-	protected val z1: Int
-	protected val z2: Int
+	val x1: Int
+	val x2: Int
+	val y1: Int
+	val y2: Int
+	val z1: Int
+	val z2: Int
 
 	init {
 		if (x1 < x2) {
@@ -122,7 +122,7 @@ open class Region3D(protected val world: World,
 			val areaDiv2 = area shr 1
 			return Region3D(center.world,
 			                center.blockX - areaDiv2, center.blockX + areaDiv2,
-			                (center.blockY - down), center.blockY + up,
+			                (center.blockY - down), center.blockY + up - 1,
 			                center.blockZ - areaDiv2, center.blockZ + areaDiv2
 			)
 		}
@@ -130,6 +130,11 @@ open class Region3D(protected val world: World,
 		@JvmStatic
 		fun square(i: Double): Double {
 			return i * i
+		}
+
+		@JvmStatic
+		fun square(i: Int): Double {
+			return 1.0 * i * i
 		}
 
 		fun deserialize(input: ObjectInputStream, base: Location) {
