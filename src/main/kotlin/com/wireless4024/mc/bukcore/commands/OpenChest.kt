@@ -87,13 +87,13 @@ class OpenChest(override val plugin: KotlinPlugin) : PlayerCommandBase {
 	override fun onTabComplete(player: Player,
 	                           command: Command,
 	                           alias: String,
-	                           args: Array<String>): MutableList<String> {
+	                           args: Array<String>): MutableList<String>? {
 		return when (args.size) {
 			1 -> mutableListOf(player.getTargetBlock(null as Set<Material>?, 80).x.toString())
 			2 -> mutableListOf(player.getTargetBlock(null as Set<Material>?, 80).y.toString())
 			3 -> mutableListOf(player.getTargetBlock(null as Set<Material>?, 80).z.toString())
 			4 -> mutableListOf(player.world.name)
-			else -> AlwaysEmptyMutableList.get()
+			else -> null
 		}
 	}
 }

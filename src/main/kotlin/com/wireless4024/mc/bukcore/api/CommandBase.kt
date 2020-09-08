@@ -57,8 +57,7 @@ interface CommandBase : CommandExecutor, TabCompleter {
 		fun getOnlinePlayers(server: Server?, name: String = ""): MutableList<String> {
 			return (server ?: Bukkit.getServer())?.onlinePlayers?.map(Player::getName)
 					       ?.filter { it.startsWith(name, true) }
-					       ?.toMutableList()
-			       ?: mutableListOf()
+					       ?.toMutableList() ?: AlwaysEmptyMutableList.get()
 		}
 
 		fun selectEntity(sender: CommandSender, name: String?): Collection<Entity> {
@@ -81,7 +80,7 @@ interface CommandBase : CommandExecutor, TabCompleter {
 		}
 
 		fun getPlayers(sender: CommandSender, name: String? = null): MutableList<String> {
-			return getOnlinePlayers(sender.server, name?.toLowerCase() ?: "")
+			return getOnlinePlayers(sender.server, name?.toLowerCase() ?: "") ?: AlwaysEmptyMutableList.get()
 		}
 	}
 
@@ -102,7 +101,7 @@ interface CommandBase : CommandExecutor, TabCompleter {
 	override fun onTabComplete(sender: CommandSender,
 	                           command: Command,
 	                           alias: String,
-	                           args: Array<String>): MutableList<String> {
+	                           args: Array<String>): MutableList<String>? {
 		return getOnlinePlayers(sender.server, args.lastOrNull()?.toLowerCase() ?: "")
 	}
 

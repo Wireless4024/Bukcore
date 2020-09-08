@@ -57,8 +57,8 @@ interface PlayerCommandBase : CommandBase {
 	override fun onTabComplete(sender: CommandSender,
 	                           command: Command,
 	                           alias: String,
-	                           args: Array<String>): MutableList<String> {
-		return if (sender is Player) onTabComplete(sender, command, alias, args) else AlwaysEmptyMutableList.get()
+	                           args: Array<String>): MutableList<String>? {
+		return if (sender is Player) onTabComplete(sender, command, alias, args) else null
 	}
 
 	/**
@@ -67,7 +67,7 @@ interface PlayerCommandBase : CommandBase {
 	fun onTabComplete(player: Player,
 	                  command: Command,
 	                  alias: String,
-	                  args: Array<String>): MutableList<String> {
+	                  args: Array<String>): MutableList<String>? {
 		return super.onTabComplete(player, command, alias, args)
 	}
 }
