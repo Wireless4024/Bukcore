@@ -112,6 +112,10 @@ public abstract class KotlinPlugin extends JavaPlugin {
 		}
 	}
 
+	public void enableAllCommand() {
+		commands.forEach((k, v) -> enableCommand(k));
+	}
+
 	public void disableCommand(String name) {
 		name = name.toLowerCase();
 		Command cm = commands.get(name);

@@ -61,6 +61,7 @@ class Bukcore : KotlinPlugin() {
 	}
 
 	private fun init() {
+		enableAllCommand()
 		for (s in config.getStringList("command.disabled"))
 			disableCommand(s)
 	}
