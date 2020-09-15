@@ -36,6 +36,7 @@ package com.wireless4024.mc.bukcore.utils
 
 import com.wireless4024.mc.bukcore.utils.Utils.Companion.iLastStartWith
 import com.wireless4024.mc.bukcore.utils.Utils.Companion.istartWith
+import com.wireless4024.mc.bukcore.utils.Utils.Companion.strMatch
 import com.wireless4024.mc.bukcore.utils.Utils.Companion.update
 import com.wireless4024.mc.bukcore.utils.Utils.Companion.updateIndexed
 import org.bukkit.Material
@@ -107,7 +108,7 @@ class LoreWrapper(private val _meta: ItemMeta,
 	 */
 	private val raw = original.toMutableList().updateIndexed { s, i ->
 		val str = s.toLowerCase().replace(MC_RAW_STR, "")
-		val idx = Utils.sortedInclude(index, str)
+		val idx = Utils.somethingMatch(index, str)
 		if (idx >= 0) indexed[index[idx]] = i
 		str
 	}
@@ -148,28 +149,28 @@ class LoreWrapper(private val _meta: ItemMeta,
 
 	override fun get(index: Int): String = if (index in this.indices) raw[index] else ""
 
-	operator fun get(prefix: String): String? {
-		val i = indexOf(prefix)
+	operator fun get(wildcard: String): String? {
+		val i = indexOf(wildcard)
 		return if (i in this.indices) raw[i] else null
 	}
 
 	/**
-	 * find index of first lore that start with [prefix]
-	 * @param prefix String
+	 * find index of first lore that match with [wildcard]
+	 * @param wildcard String
 	 * @return index of element, -1 if not found
 	 */
-	override fun indexOf(prefix: String): Int {
-		val p = if (prefix.indexOf('§') >= 0) prefix.replace(MC_RAW_STR, "") else prefix
-		return indexed[p] ?: if (this.skipNotIndex) -1 else raw.istartWith(p) ?: -1
+	override fun indexOf(wildcard: String): Int {
+		val p = if ('§' in wildcard) wildcard.replace(MC_RAW_STR, "") else wildcard
+		return indexed[p] ?: if (this.skipNotIndex) -1 else raw.strMatch(p) ?: -1
 	}
 
 	/**
 	 * replace first lore that start with [prefix] with [prefix]
 	 * @param key String to search
-	 * @param prefix String to replace
+	 * @param wildcard String to replace
 	 */
-	fun replace(prefix: String, lore: String): String? {
-		val where = indexOf(prefix)
+	fun replace(wildcard: String, lore: String): String? {
+		val where = indexOf(wildcard)
 		if (where < 0) return null
 		val old = original[where]
 		original[where] = lore
@@ -178,12 +179,12 @@ class LoreWrapper(private val _meta: ItemMeta,
 	}
 
 	/**
-	 * replace first lore that start with [prefix] with [prefix] else add to lore-list
-	 * @param key String to search
-	 * @param prefix String to replace
+	 * replace first lore that match with [wildcard] with [lore] else add to lore-list
+	 * @param wildcard String to search
+	 * @param lore String to add
 	 */
-	fun replaceOrAdd(prefix: String, lore: String): String? {
-		val where = indexOf(prefix)
+	fun replaceOrAdd(wildcard: String, lore: String): String? {
+		val where = indexOf(wildcard)
 		if (where !in indices) {
 			add(lore)
 			return null

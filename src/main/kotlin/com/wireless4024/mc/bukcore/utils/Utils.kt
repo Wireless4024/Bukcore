@@ -176,6 +176,20 @@ public interface Utils {
 		}
 
 		/**
+		 * find first index that value start with [str]
+		 * @receiver List<String> source list
+		 * @param str String
+		 * @return index if found else null
+		 */
+		fun List<out String?>.strMatch(wildcard: String): Int? {
+			for (i in this.indices) {
+				val str: String? = this[i]
+				if (str != null && str.wildcardMatch(wildcard)) return i
+			}
+			return null
+		}
+
+		/**
 		 * find last index that value start with [str]
 		 * @receiver List<String> source list
 		 * @param str String
@@ -237,15 +251,57 @@ public interface Utils {
 				when {
 					cmp < 0 -> low = mid + 1
 					cmp > 0 -> high = mid - 1
-					else    -> return mid
+					else -> return mid
 				}
+			}
+
+			return -1
+		}
+		fun somethingMatch(array: Array<String>, wildcard: String): Int {
+			for((i, m) in array.withIndex()) {
+				if (m.wildcardMatch(wildcard)) return i
 			}
 
 			return -1
 		}
 
 		fun <T : Comparable<T>> List<T>.binaryContains(element: T?) = this.binarySearch(element) >= 0
+
+		fun String?.wildcardMatch(wildcard: String): Boolean {
+			val len_s = this?.length ?: return false
+			val len_p = wildcard.length
+			if (len_s == 0 && len_p == 0) return true
+			var i = 0
+			var j = 0
+			// save the last matched index
+			var start_s = -1
+			var start_p = -1
+			while (i < len_s) {
+				if (j < len_p && (this[i] == wildcard[j] || wildcard[j] == '?')) {
+					++i
+					++j
+				} else if (j < len_p && wildcard[j] == '*') {
+					while (j < len_p && wildcard[j] == '*') ++j
+					if (j == len_p) return true
+					start_p = j
+					start_s = i
+				} else if ((j >= len_p || this[i] != wildcard[j]) && start_p > -1) {
+					++start_s
+					j = start_p
+					i = start_s
+				} else {
+					return false
+				}
+			}
+			while (j < len_p) {
+				if (wildcard[j] != '*') return false
+				++j
+			}
+			return true
+		}
 	}
+
+
 }
 
 fun Player.sendMessage(o: Any?) {
