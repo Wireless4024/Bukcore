@@ -34,7 +34,10 @@
 
 package com.wireless4024.mc.bukcore.utils
 
-import org.bukkit.*
+import org.bukkit.Bukkit
+import org.bukkit.OfflinePlayer
+import org.bukkit.Server
+import org.bukkit.World
 import org.bukkit.attribute.Attribute
 import org.bukkit.boss.BarColor
 import org.bukkit.boss.BarFlag
@@ -45,8 +48,8 @@ import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryType
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
+import org.bukkit.potion.PotionEffectType
 import java.util.*
-import java.util.function.Consumer
 import kotlin.collections.ArrayList
 
 typealias Worlds = List<World>
@@ -119,7 +122,22 @@ inline fun <T : Entity, R> Collection<T>.each(block: T.() -> R): ArrayList<R> {
 
 inline fun Player.heal() {
 	this.health = this.getAttribute(Attribute.GENERIC_MAX_HEALTH).value
-	this.saturation = 20f
+	this.foodLevel = 20
+	this.saturation = 5f
+	this.exhaustion = 0f
+	// above value taken from https://minecraft.gamepedia.com/Hunger#Mechanics
+
+	this.removePotionEffect(PotionEffectType.BLINDNESS)
+	this.removePotionEffect(PotionEffectType.CONFUSION)
+	this.removePotionEffect(PotionEffectType.GLOWING)
+	this.removePotionEffect(PotionEffectType.HUNGER)
+	this.removePotionEffect(PotionEffectType.LEVITATION)
+	this.removePotionEffect(PotionEffectType.POISON)
+	this.removePotionEffect(PotionEffectType.UNLUCK)
+	this.removePotionEffect(PotionEffectType.SLOW)
+	this.removePotionEffect(PotionEffectType.SLOW_DIGGING)
+	this.removePotionEffect(PotionEffectType.WEAKNESS)
+	this.removePotionEffect(PotionEffectType.WITHER)
 }
 
 inline val Player.maxHealth0 get() = this.getAttribute(Attribute.GENERIC_MAX_HEALTH).value
