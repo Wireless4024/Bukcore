@@ -139,9 +139,9 @@ public interface Utils {
 		 * @receiver Array<T> source array
 		 * @return String
 		 */
-		fun <T> Array<T>.dropJoinToString(): String {
+		fun <T> Array<T>.dropJoinToString(from: Int = 1): String {
 			val sb = StringBuilder()
-			for (i in 1 until this.size)
+			for (i in from until this.size)
 				sb.append(this[i]).append(' ')
 			return sb.trim().toString()
 		}
@@ -257,8 +257,9 @@ public interface Utils {
 
 			return -1
 		}
+
 		fun somethingMatch(array: Array<String>, wildcard: String): Int {
-			for((i, m) in array.withIndex()) {
+			for ((i, m) in array.withIndex()) {
 				if (m.wildcardMatch(wildcard)) return i
 			}
 
