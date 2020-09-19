@@ -1,0 +1,44 @@
+# error
+json-parse-fail: เกิดข้อผิดพลาดขณะอ่าน JSON
+
+# soft error
+unavailable: ไม่สามารถใช้งานได้
+cant-find: ไม่สามารถค้นหา
+player-not-found: ไม่มีผู้เล่นในเซิฟเวอร์
+
+# word
+chest: กล่อง
+inventory: ช่องเก็บของ
+block: บล็อค
+players: ผู้เล่น
+command: คำสั่ง
+from: จาก
+to: ไปยัง
+in: ใน
+
+# need
+need-holding-item: โปรดถือไอเท็มก่อนใช้
+need-player: ไม่สามารถใช้งานได้ หากไม่ใช่ผู้เล่น
+
+# info
+message-sent: ส่งข้อความไปยัง
+reload-success: รีโหลดคอนฟิกสำเร็จ
+freed-memory: เคลียร์แรมไปแล้ว
+youll-teleport: คุณจะเทเลพอท
+open-chest: เปิดกล่องที่
+
+rtp-disabled: โลกนี้ไม่สามารถใช้ rtp ได้
+has-been: ได้ถูก
+cancelled: ยกเลิกแล้ว
+woosh: วู้สสส
+
+sorted: จัดเรียงแล้ว
+# time
+ms: มิลลิวินาที
+sec: วินาที
+minute: นาที
+hour: ชั่วโมง
+day : วัน
+
+cooldown: คูลดาวน์
+remaining: คงเหลือ

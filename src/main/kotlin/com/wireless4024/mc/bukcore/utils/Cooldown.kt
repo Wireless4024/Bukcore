@@ -34,6 +34,7 @@
 package com.wireless4024.mc.bukcore.utils
 
 import com.wireless4024.mc.bukcore.Bukcore
+import com.wireless4024.mc.bukcore.utils.i18n.translator
 import org.bukkit.ChatColor
 import org.bukkit.command.CommandSender
 
@@ -137,7 +138,9 @@ public class Cooldown private constructor() {
 			set(key, duration)
 			return true
 		}
-		player.sendMessage(ChatColor.RED.toString() + "Cooldown remaining ${get(key)}s")
+		player.translator {
+			+"${ChatColor.RED} {cooldown} {remaining} ${get(key)} {sec}"
+		}
 		return false
 	}
 

@@ -37,6 +37,7 @@ import com.wireless4024.mc.bukcore.api.PlayerCommandBase
 import com.wireless4024.mc.bukcore.internal.AlwaysEmptyMutableList
 import com.wireless4024.mc.bukcore.internal.InventoryWrapper
 import com.wireless4024.mc.bukcore.utils.BlockUtils
+import com.wireless4024.mc.bukcore.utils.i18n.translator
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.block.Chest
@@ -68,17 +69,20 @@ class OpenChest(override val plugin: KotlinPlugin) : PlayerCommandBase {
 			if (args.size >= 4) ploc.world = Bukkit.getWorld(args[3]) ?: ploc.world
 
 			val block = BlockUtils.isChest(ploc) ?: BlockUtils.findChest(player, plugin["openchest.range"] as Int)
-			if (block == null) {
-				player.sendMessage("${plugin["message.cant-find"]} ${plugin["message.chest"]}")
-				return true
+			player.translator {
+				if (block == null) {
+					+"{cant-find} {chest}"
+					return true
+				}
+				+"{open-chest} ${block.location}"
+				if (plugin["openchest.silent"] as Boolean)
+					player.openInventory(
+							InventoryWrapper((block.state as Chest).inventory,
+									"${-"chest"} at %s %s %s".format(block.x, block.y, block.z)))
+				else
+					player.openInventory((block.state as Chest).inventory)
 			}
-			plugin.info("${plugin["message.open-chest"]} ${block.location}")
-			if (plugin["openchest.silent"] as Boolean)
-				player.openInventory(
-						InventoryWrapper((block.state as Chest).inventory,
-						                 "${plugin["message.chest"]} at %s %s %s".format(block.x, block.y, block.z)))
-			else
-				player.openInventory((block.state as Chest).inventory)
+
 			return true
 		}
 		return true

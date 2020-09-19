@@ -4,6 +4,7 @@
 version: 0.1.1
 debug: false
 
+fallback_lang: en
 # random teleport
 rtp:
   enable: true
@@ -46,35 +47,6 @@ sortinv:
 command: # enabled command
   disabled:
     - test
-message:
 
-  # error
-  json-parse-fail: Unable to parse JSON
-
-  # soft error
-  unavailable: unavailable
-  cant-find: can't find a
-  player-not-found: Couldn't find a player in the server
-
-  # word
-  chest: Chest
-  inventory: inventory
-  block: Block
-  players: players
-  command: command
-  from: from
-  to: to
-  in: in
-
-  # need
-  need-holding-item: Please hold item in main hand before use
-  need-player: You must be a player to use
-
-  # info
-  message-sent: message was sent
-  reload-success: Reload config successfully
-  freed-memory: freed memory
-  youll-teleport: You'll teleport
-  open-chest: open chest at
 
 

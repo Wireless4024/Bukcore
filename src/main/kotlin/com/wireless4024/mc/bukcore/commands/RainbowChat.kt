@@ -35,6 +35,7 @@ package com.wireless4024.mc.bukcore.commands
 import com.wireless4024.mc.bukcore.api.CommandBase
 import com.wireless4024.mc.bukcore.api.KotlinPlugin
 import com.wireless4024.mc.bukcore.internal.AlwaysEmptyMutableList
+import com.wireless4024.mc.bukcore.utils.i18n.translator
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 
@@ -65,7 +66,9 @@ class RainbowChat(override val plugin: KotlinPlugin) : CommandBase {
 				for (player in sender.server.onlinePlayers) {
 					player.sendMessage(msg)
 				}
-				sender.sendMessage("${plugin["message.message-sent"]} ${sender.server.onlinePlayers.size} ${plugin["message.players"]}")
+				sender.translator{
+					+"{message-sent} ${sender.server.onlinePlayers.size} {players}"
+				}
 			}
 		}
 		return true

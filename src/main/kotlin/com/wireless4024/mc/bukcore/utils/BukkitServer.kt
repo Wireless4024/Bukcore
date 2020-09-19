@@ -45,9 +45,11 @@ import org.bukkit.boss.BarStyle
 import org.bukkit.boss.BossBar
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
+import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryType
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
+import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.potion.PotionEffectType
 import java.util.*
 import kotlin.collections.ArrayList
@@ -102,6 +104,7 @@ inline var Server.allowList: Boolean
 
 inline fun Server.broadcast(message: Any?) = this.broadcastMessage(message.toString())
 inline fun Server.command(name: String) = this.getPluginCommand(name)
+inline fun Server.register(listner: Listener, plugin: JavaPlugin) = this.pluginManager.registerEvents(listner, plugin)
 
 inline val World.border get() = this.worldBorder
 inline val World.type get() = this.worldType

@@ -36,6 +36,7 @@ package com.wireless4024.mc.bukcore.commands
 import com.wireless4024.mc.bukcore.api.CommandBase
 import com.wireless4024.mc.bukcore.api.KotlinPlugin
 import com.wireless4024.mc.bukcore.internal.AlwaysEmptyMutableList
+import com.wireless4024.mc.bukcore.utils.i18n.translator
 import org.bukkit.ChatColor
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
@@ -60,13 +61,12 @@ class Gc(override val plugin: KotlinPlugin) : CommandBase {
 				System.gc()
 				val after = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
 				val dur = System.currentTimeMillis() - time
-				sender.sendMessage(("${plugin["message.freed-memory"]} ${ChatColor.BLUE}%.3fMib${ChatColor.RESET}" +
-				                    " ${plugin["message.from"]} ${ChatColor.RED}%.3fMib${ChatColor.RESET} ${plugin["message.to"]}" +
-				                    " ${ChatColor.GREEN}%.3fMib${ChatColor.RESET} ${plugin["message.in"]} ${ChatColor.GREEN}%sms")
-						                   .format((before - after) / 1048576.0,
-						                           before / 1048576.0,
-						                           after / 1048576.0,
-						                           dur))
+				sender.translator {
+					sender.sendMessage((-("{freed-memory} ${ChatColor.BLUE}%.3fMib${ChatColor.RESET} {from} ${ChatColor.RED}%.3fMib$" +
+							"{ChatColor.RESET} {to} ${ChatColor.GREEN}%.3fMib${ChatColor.RESET} {in} ${ChatColor.GREEN}%sms"))
+							.format((before - after) / 1048576.0,
+									before / 1048576.0, after / 1048576.0, dur))
+				}
 			}
 
 			return true

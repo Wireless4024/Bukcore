@@ -37,6 +37,7 @@ import com.wireless4024.mc.bukcore.api.PlayerCommandBase
 import com.wireless4024.mc.bukcore.bridge.NBTAPIBridge
 import com.wireless4024.mc.bukcore.internal.AlwaysEmptyMutableList
 import com.wireless4024.mc.bukcore.utils.ReflectionUtils
+import com.wireless4024.mc.bukcore.utils.i18n.translator
 import com.wireless4024.mc.bukcore.utils.sendMessage
 import de.tr7zw.nbtapi.NBTContainer
 import de.tr7zw.nbtapi.NBTItem
@@ -54,14 +55,15 @@ class ItemData(override val plugin: KotlinPlugin) : PlayerCommandBase {
 
 	override fun onCommand(player: Player, command: Command, label: String, args: Array<String>): Boolean {
 		if (player.hasPermission("bukcore.itemdata")) {
+			player.translator {
 			if (!NBTAPIBridge.available) {
-				player.sendMessage("${NBTAPIBridge.name} ${plugin["message.unavailable"]}")
+				+"unavailable"
 				return true
 			}
 			val item = player.inventory.itemInMainHand
 			@Suppress("DEPRECATION")
 			if (item == null) {
-				player.sendMessage(plugin["message.need-holding-item"] as String)
+				+"need-holding-item"
 				return true
 			}
 			try {
@@ -83,7 +85,9 @@ class ItemData(override val plugin: KotlinPlugin) : PlayerCommandBase {
 				}
 				player.sendMessage(NBTItem(item))
 			} catch (t: Throwable) {
-				player.sendMessage(plugin["message.need-holding-item"] as String)
+				+"need-holding-item"
+			}
+
 			}
 		}
 		return true

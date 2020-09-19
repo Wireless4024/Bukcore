@@ -3,9 +3,9 @@ version: @version@
 main: com.wireless4024.mc.bukcore.Bukcore
 prefix: bukcore
 load: STARTUP
-authors: [Wireless4024]
+authors: [ Wireless4024 ]
 description: Core plugin for plugins written by Wireless4024
-softdepend: [NBTAPI]
+softdepend: [ NBTAPI, ProtocolLib ]
 commands:
   chat:
     description: force player to say a message
@@ -16,25 +16,25 @@ commands:
     description: send all message with rainbow box to player
     usage: /rainbowchat <message>
     permission: bukcore.rainbowchat
-    aliases: [rc]
+    aliases: [ rc ]
 
   openchest:
     description: open target chest inventory even it's locked
     usage: /openchest
     permission: bukcore.openchest
-    aliases: [oc]
+    aliases: [ oc ]
 
   pickblock:
     description: pick up block with block data
     usage: /pickblock
     permission: bukcore.pickblock
-    aliases: [pick]
+    aliases: [ pick ]
 
   randomteleport:
     description: random teleport
     usage: /randomteleport
     permission: bukcore.rtp
-    aliases: [rtp]
+    aliases: [ rtp ]
 
   itemdata:
     description: get item nbt
@@ -60,7 +60,7 @@ commands:
     description: sort inventory
     usage: /sortinventory [player] or /sortinventory <x> <y> <z> <world>
     permission: bukcore.sortinventory
-    aliases: [sortinv]
+    aliases: [ sortinv ]
 
   test:
     description: development use

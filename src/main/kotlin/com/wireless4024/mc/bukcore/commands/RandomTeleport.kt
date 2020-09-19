@@ -36,6 +36,7 @@ import com.wireless4024.mc.bukcore.api.CommandBase
 import com.wireless4024.mc.bukcore.api.KotlinPlugin
 import com.wireless4024.mc.bukcore.utils.Cooldown
 import com.wireless4024.mc.bukcore.utils.blocks.Region3D
+import com.wireless4024.mc.bukcore.utils.i18n.translator
 import org.bukkit.ChatColor
 import org.bukkit.Location
 import org.bukkit.Particle
@@ -94,54 +95,53 @@ class RandomTeleport(override val plugin: KotlinPlugin) : CommandBase {
 
 			plugin.runAsync {
 				val ploc = player.location
-				if (!isEnable(plugin, ploc.world.name)) {
-					sender.sendMessage("this world disabled random teleport")
-					return@runAsync
-				}
-				if (!Cooldown[sender.name].availableOrWarn("rtp", getInt(plugin, ploc.world.name, "cooldown"), sender))
-					return@runAsync
-				val rmax = getInt(plugin, ploc.world.name, "max-radius")
-				val radius = if (sender.hasPermission("bukcore.rtp.custom")) args.firstOrNull()?.toIntOrNull()
-				                                                             ?: rmax else rmax
-				val baseLoc = if (getInt(plugin, ploc.world.name, "max-radius", Int.MIN_VALUE) == Int.MIN_VALUE
-				                  || getInt(plugin, ploc.world.name, "min-radius", Int.MIN_VALUE) == Int.MIN_VALUE) ploc
-				else Location(ploc.world,
-				              getInt(plugin, ploc.world.name, "anchorX").toDouble(),
-				              0.0,
-				              getInt(plugin, ploc.world.name, "anchorZ").toDouble(),
-				              player.location.yaw,
-				              player.location.pitch)
-				val delay = getInt(plugin, ploc.world.name, "delay", 3)
-				for (d in 0L until delay) {
-					plugin.runTask(d * 20) {
-						sender.sendMessage("${ChatColor.BLUE}${plugin["message.youll-teleport"]} ${plugin["message.in"]} ${delay - d}s")
-						ploc.world.spawnParticle(Particle.PORTAL, ploc, (30 + (d * 30)).toInt())
+				sender.translator {
+					if (!isEnable(plugin, ploc.world.name)) {
+						+"rtp-disabled"
+						return@runAsync
+					}
+					if (!Cooldown[sender.name].availableOrWarn("rtp", getInt(plugin, ploc.world.name, "cooldown"), sender))
+						return@runAsync
+					val rmax = getInt(plugin, ploc.world.name, "max-radius")
+					val radius = if (sender.hasPermission("bukcore.rtp.custom")) args.firstOrNull()?.toIntOrNull()
+							?: rmax else rmax
+					val baseLoc = if (getInt(plugin, ploc.world.name, "max-radius", Int.MIN_VALUE) == Int.MIN_VALUE
+						|| getInt(plugin, ploc.world.name, "min-radius", Int.MIN_VALUE) == Int.MIN_VALUE) ploc
+					else Location(ploc.world,
+							getInt(plugin, ploc.world.name, "anchorX").toDouble(),
+							0.0,
+							getInt(plugin, ploc.world.name, "anchorZ").toDouble(),
+							player.location.yaw,
+							player.location.pitch)
+					val delay = getInt(plugin, ploc.world.name, "delay", 3)
+					for (d in 0L until delay) {
+						plugin.runTask(d * 20) {
+							+"${ChatColor.BLUE}{youll-teleport} {in} ${delay - d} {sec}"
+							ploc.world.spawnParticle(Particle.PORTAL, ploc, (30 + (d * 30)).toInt())
+						}
+					}
+					val loc = random(baseLoc, radius, getInt(plugin, ploc.world.name, "min-radius"))
+
+					// pre load/generate chunks around target location
+					Region3D.around(loc, min(16, getInt(plugin, ploc.world.name, "pre-load-chunks-area", delay)))
+							.lazyLoadChunk(9, 4) // load 9 chunks every 4 tick
+
+					plugin.info("%s use rtp to %s".format(sender.name, loc))
+
+
+					plugin.runTask(delay * 20L) {
+						if (player.location.block.location != ploc.block.location) {
+							+"${ChatColor.RED}rtp {has-been} {cancelled}"
+							return@runTask
+						}
+						val floc = loc.world.getHighestBlockAt(loc).location
+						player.teleport(floc)
+						+"${ChatColor.GREEN}{woosh}"
+						loc.world.spawnParticle(Particle.PORTAL, floc, 80)
 					}
 				}
-				val loc = random(baseLoc, radius, getInt(plugin, ploc.world.name, "min-radius"))
-
-				// pre load/generate chunks around target location
-				Region3D.around(loc, min(16, getInt(plugin, ploc.world.name, "pre-load-chunks-area", delay)))
-						.lazyLoadChunk(9, 4) // load 9 chunks every 4 tick
-
-				plugin.info("%s use rtp to %s".format(sender.name, loc))
-
-
-				plugin.runTask(delay * 20L) {
-					if (player.location.block.location != ploc.block.location) {
-						sender.sendMessage("${ChatColor.RED}rtp has been cancel")
-						return@runTask
-					}
-					val floc = loc.world.getHighestBlockAt(loc).location
-					player.teleport(floc)
-					sender.sendMessage("${ChatColor.GREEN}woosh?")
-					loc.world.spawnParticle(Particle.PORTAL, floc, 80)
-				}
-
 			}
 		}
-		if (sender !is Player)
-			sender.sendMessage("${plugin["message.need-player"]}${plugin["message.command"]}")
 		return true
 	}
 }

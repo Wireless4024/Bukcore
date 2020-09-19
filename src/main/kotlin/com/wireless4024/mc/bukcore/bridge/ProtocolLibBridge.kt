@@ -32,23 +32,24 @@
 
 package com.wireless4024.mc.bukcore.bridge
 
+import com.wireless4024.mc.bukcore.Bukcore
 import org.bukkit.plugin.Plugin
 
 /**
- * Bridge class allow to use soft-depend without crashing :D
+ * a class to check if plugin WorldGuard is available
  *
  * @author Wireless4024
  * @version 0.1
  * @since 0.1
  */
-interface Bridge {
+object ProtocolLibBridge : Bridge {
 
-	val name: String
-	val available: Boolean
-		get() = plugin?.isEnabled == true
-	val plugin: Plugin?
+	private var _plugin: Plugin? = null
+	override val name: String = "ProtocolLib"
+	override val available: Boolean
+		get() = plugin != null && plugin?.isEnabled == true
 
-	operator fun invoke(block: Bridge.() -> Unit) {
-		if (this.available) block(this)
-	}
+	override val plugin: Plugin?
+		get() = _plugin
+		        ?: (Bukcore.INSTANCE?.server?.pluginManager?.getPlugin("ProtocolLib"))?.also { _plugin = it }
 }

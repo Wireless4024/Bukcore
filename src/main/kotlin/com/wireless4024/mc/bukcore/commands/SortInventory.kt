@@ -37,6 +37,7 @@ import com.wireless4024.mc.bukcore.api.KotlinPlugin
 import com.wireless4024.mc.bukcore.bridge.NBTAPIBridge
 import com.wireless4024.mc.bukcore.utils.BlockUtils
 import com.wireless4024.mc.bukcore.utils.UniqueSortedArrayList
+import com.wireless4024.mc.bukcore.utils.i18n.translator
 import de.tr7zw.nbtapi.NBTItem
 import org.bukkit.Bukkit
 import org.bukkit.Material.KNOWLEDGE_BOOK
@@ -214,23 +215,24 @@ class SortInventory(override val plugin: KotlinPlugin) : CommandBase {
 			}
 			if (inv == null && sender is Player)
 				inv = sender.inventory
-
-			if (inv == null) {
-				sender.sendMessage("${plugin["message.cant-find"]} ${plugin["message.chest"]}")
-				return true
+			sender.translator{
+				if (inv == null) {
+					+"{cant-find} {chest}"
+					return true
+				}
+				if (plugin["sortinv.mode"] == "merge" && NBTAPIBridge.available)
+					if (inv is PlayerInventory)
+						sort0(inv)
+					else
+						sort(inv)
+				else {
+					if (inv is PlayerInventory)
+						defaultSort0(inv)
+					else
+						defaultSort(inv)
+				}
+				+"{inventory} {has-been} {sorted}"
 			}
-			if (plugin["sortinv.mode"] == "merge" && NBTAPIBridge.available)
-				if (inv is PlayerInventory)
-					sort0(inv)
-				else
-					sort(inv)
-			else {
-				if (inv is PlayerInventory)
-					defaultSort0(inv)
-				else
-					defaultSort(inv)
-			}
-			sender.sendMessage("inventory has been sorted")
 		}
 		return true
 	}

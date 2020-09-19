@@ -38,6 +38,7 @@ import com.wireless4024.mc.bukcore.api.PlayerCommandBase
 import com.wireless4024.mc.bukcore.bridge.NBTAPIBridge
 import com.wireless4024.mc.bukcore.internal.AlwaysEmptyMutableList
 import com.wireless4024.mc.bukcore.utils.BlockUtils
+import com.wireless4024.mc.bukcore.utils.i18n.translator
 import de.tr7zw.nbtapi.NBTContainer
 import de.tr7zw.nbtapi.NBTItem
 import de.tr7zw.nbtapi.NBTReflectionUtil
@@ -66,7 +67,9 @@ class PickBlock(override val plugin: KotlinPlugin) : PlayerCommandBase {
 		if (player.hasPermission("bukcore.pickblock")) {
 			val block = BlockUtils.traceBlock(player, 50)
 			if (block == null) {
-				player.sendMessage("${ChatColor.RED}${plugin["message.cant-find"]} ${plugin["message.block"]}")
+				player.translator {
+					+"${ChatColor.RED}{cant-find} {block}"
+				}
 				return true
 			}
 			var item = block.state.data.toItemStack(1)

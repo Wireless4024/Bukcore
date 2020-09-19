@@ -38,6 +38,7 @@ import com.wireless4024.mc.bukcore.api.KotlinPlugin
 import com.wireless4024.mc.bukcore.internal.AlwaysEmptyMutableList
 import com.wireless4024.mc.bukcore.internal.Players
 import com.wireless4024.mc.bukcore.utils.Utils.Companion.dropJoinToString
+import com.wireless4024.mc.bukcore.utils.i18n.translator
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 
@@ -55,7 +56,9 @@ class Chat(override val plugin: KotlinPlugin) : CommandBase {
 		if (args.size < 2) return false
 		val player = Players.getPlayer(args.first())?.player
 		if (player == null) {
-			sender.sendMessage(plugin["message.player-not-found"] as String)
+			sender.translator {
+				+"player-not-found"
+			}
 			return true
 		}
 		player.chat(args.dropJoinToString())

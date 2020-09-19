@@ -35,11 +35,19 @@
 
 package com.wireless4024.mc.bukcore
 
+import com.comphenix.protocol.PacketType
+import com.comphenix.protocol.ProtocolLibrary
+import com.comphenix.protocol.events.ListenerPriority
+import com.comphenix.protocol.events.PacketAdapter
+import com.comphenix.protocol.events.PacketEvent
 import com.wireless4024.mc.bukcore.api.KotlinPlugin
+import com.wireless4024.mc.bukcore.bridge.ProtocolLibBridge
 import com.wireless4024.mc.bukcore.commands.*
 import com.wireless4024.mc.bukcore.internal.Players
 import com.wireless4024.mc.bukcore.utils.Cooldown
-import java.io.File
+import com.wireless4024.mc.bukcore.utils.i18n.Translator
+import org.bukkit.configuration.file.YamlConfiguration
+import org.bukkit.event.player.PlayerJoinEvent
 
 /**
  * Main class for bukcore
@@ -80,6 +88,27 @@ class Bukcore : KotlinPlugin() {
 		SortInventory(this).register()
 		RandomTeleport(this).register()
 
+		val en = YamlConfiguration().run {
+			set("en.greeting", "hi")
+			set("en.test", "test")
+			getConfigurationSection("en")
+		}
+		val th = YamlConfiguration().run {
+			set("th.greeting", "ดีจ้า")
+			set("th.test", "ทดสอบ")
+			getConfigurationSection("th")
+		}
+		Translator.loadFile(  getResource("bukcore/lang/en.yml"),"en")
+		Translator.loadFile(  getResource("bukcore/lang/th.yml"),"th")
+
+		ProtocolLibBridge {
+			ProtocolLibrary.getProtocolManager().addPacketListener(object : PacketAdapter(this@Bukcore, ListenerPriority.LOWEST, PacketType.Play.Client.SETTINGS) {
+				override fun onPacketReceiving(event: PacketEvent) {
+					Translator.setLanguage(event.player, event.packet.strings.read(0).substringBefore('_'))
+				}
+			})
+		}
+
 		saveDefaultConfig()
 
 		if (config.getString("version") < VERSION) {
@@ -91,6 +120,8 @@ class Bukcore : KotlinPlugin() {
 			logger.info("update config done")
 		}
 		init()
+
+		warning(Translator.format("en","json-parse-fail"))
 	}
 
 	override fun onDisable() {

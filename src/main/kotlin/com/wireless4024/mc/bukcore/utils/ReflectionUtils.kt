@@ -116,7 +116,7 @@ object ReflectionUtils {
 			val value = get(obj)
 			isAccessible = false
 			value
-		} as T?
+		} as? T
 	}
 
 	fun <T> callMethod(obj: Any, name: String, vararg args: Any): T? {

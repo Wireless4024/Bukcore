@@ -37,6 +37,7 @@ import com.wireless4024.mc.bukcore.api.CommandBase
 import com.wireless4024.mc.bukcore.api.KotlinPlugin
 import com.wireless4024.mc.bukcore.internal.AlwaysEmptyMutableList
 import com.wireless4024.mc.bukcore.utils.Utils.Companion.filterToMutable
+import com.wireless4024.mc.bukcore.utils.i18n.translator
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 
@@ -51,13 +52,15 @@ class BukcoreC(override val plugin: KotlinPlugin) : CommandBase {
 		if (sender.hasPermission("bukcore.bukcore")) {
 			when (args.firstOrNull()?.toLowerCase()) {
 				"reload" -> {
-					Bukcore.getInstance().reload()
-					sender.sendMessage(Bukcore.getInstance()["message.reload-success"] as String)
+					sender.translator {
+						Bukcore.getInstance().reload()
+						+"reload-success"
+					}
 				}
 				"version" -> {
 					sender.sendMessage(Bukcore.VERSION)
 				}
-				else      -> return false
+				else -> return false
 			}
 		}
 		return true
@@ -70,7 +73,7 @@ class BukcoreC(override val plugin: KotlinPlugin) : CommandBase {
 		return when {
 			args.isEmpty() -> COMMANDS
 			args.size == 1 -> COMMANDS.filterToMutable { it.startsWith(args.first(), true) }
-			else           -> AlwaysEmptyMutableList.get()
+			else -> AlwaysEmptyMutableList.get()
 		}
 	}
 }
