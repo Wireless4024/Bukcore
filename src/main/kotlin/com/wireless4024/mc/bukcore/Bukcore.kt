@@ -88,16 +88,6 @@ class Bukcore : KotlinPlugin() {
 		SortInventory(this).register()
 		RandomTeleport(this).register()
 
-		val en = YamlConfiguration().run {
-			set("en.greeting", "hi")
-			set("en.test", "test")
-			getConfigurationSection("en")
-		}
-		val th = YamlConfiguration().run {
-			set("th.greeting", "ดีจ้า")
-			set("th.test", "ทดสอบ")
-			getConfigurationSection("th")
-		}
 		Translator.loadFile(  getResource("bukcore/lang/en.yml"),"en")
 		Translator.loadFile(  getResource("bukcore/lang/th.yml"),"th")
 
@@ -120,8 +110,6 @@ class Bukcore : KotlinPlugin() {
 			logger.info("update config done")
 		}
 		init()
-
-		warning(Translator.format("en","json-parse-fail"))
 	}
 
 	override fun onDisable() {
