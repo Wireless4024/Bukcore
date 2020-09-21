@@ -2,6 +2,9 @@ Bukcore
 ===========
 a core plugin for my plugins with [Kotlin](https://kotlinlang.org) feature
 
+## Download 
+[Bukkit](https://dev.bukkit.org/projects/bukcore) [Spigot](https://www.spigotmc.org/resources/bukcore.84075/) (same file but different website)
+
 #### Note
 + if you can spot a bug please tell me in issue
 + any question or suggestion please ask in issue
