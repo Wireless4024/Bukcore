@@ -126,7 +126,7 @@ class Bukcore : KotlinPlugin() {
 		private var _language = "en"
 		val language get() = _language
 
-		const val VERSION = "0.2.1"
+		const val VERSION = "0.3"
 
 		@JvmSynthetic
 		private var INSTANCE: Bukcore? = null
