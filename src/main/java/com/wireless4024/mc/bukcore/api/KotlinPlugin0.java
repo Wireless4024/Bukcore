@@ -37,7 +37,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.SimpleCommandMap;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventException;
@@ -105,7 +104,7 @@ public abstract class KotlinPlugin0 extends JavaPlugin implements Listener {
      * @return File object in config folder
      */
     public File getFile(String path) {
-        return new File(getDataFolder().getAbsolutePath() + path);
+        return new File(getDataFolder().getAbsolutePath() + "/" + path);
     }
 
     /**
@@ -114,7 +113,7 @@ public abstract class KotlinPlugin0 extends JavaPlugin implements Listener {
      * @param name filename
      * @return File object in config folder
      */
-    public YamlConfiguration getYamlFile(String name) {
+    public YamlConfiguration readYamlFile(String name) {
         return YamlConfiguration.loadConfiguration(getFile(name));
     }
 
@@ -296,6 +295,8 @@ public abstract class KotlinPlugin0 extends JavaPlugin implements Listener {
 
 
     /**
+     * @param delay delay in tick to execute this task
+     * @param job   a task to run
      * @return a BukkitTask that contains the id number
      * @see #runTask(long, Runnable)
      */
@@ -394,6 +395,7 @@ plugin.lazyRun<Int>(1L, 0) { value, cancel ->
     /**
      * continue calling a task until cancel is true
      *
+     * @param <T>    type for supply
      * @param period delay between each call in tick
      * @param supply initial value
      * @param job    a task to run
@@ -409,6 +411,7 @@ plugin.lazyRun<Int>(1L, 0) { value, cancel ->
     /**
      * continue calling a task asynchronously until return false
      *
+     * @param <T>    type for supply
      * @param period delay between each call in tick
      * @param supply initial value
      * @param job    a task to run

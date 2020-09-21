@@ -42,6 +42,7 @@ import java.io.InputStream
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 object Translator {
@@ -49,15 +50,83 @@ object Translator {
 	private val replacer = Regex("\\{[^}]+}")
 	private val languageFinder = Regex("[a-zA-Z]{2,3}(?=\\.)")
 	private val root = YamlConfiguration()
+	private val staticPlayerLanguages = HashMap<UUID, String>()
 	private val playerLanguages = HashMap<UUID, String>()
+	private var fallbackLang: String = ""
+	private var fallback: ConfigurationSection = root
+
+	val languages = ArrayList<String>()
+
+	init {
+		Bukcore.registerShutdownTask {
+			Bukcore.getInstance().ymlResource("player-language.yml") {
+				for (key in it.getKeys(false)) {
+					it.set(key, null)
+				}
+				staticPlayerLanguages.forEach { t, u ->
+					it.set(t.toString(), u)
+				}
+			}
+		}
+		Bukcore.getInstance().readYamlFile("player-language.yml").run {
+			for (key in getKeys(false)) {
+				staticPlayerLanguages[UUID.fromString(key)] = getString(key) ?: continue
+			}
+		}
+	}
+
+	fun setStaticLanguage(player: Player, language: String) {
+		val uid = player.uniqueId
+		if (uid in staticPlayerLanguages) {
+			if (language == "auto") {
+				staticPlayerLanguages.remove(uid)
+				return
+			}
+		}
+		staticPlayerLanguages[uid] = language
+	}
 
 	fun setLanguage(player: Player, language: String) {
+		val uid = player.uniqueId
+		if (uid in staticPlayerLanguages) return
 		playerLanguages[player.uniqueId] = language
 	}
 
 	fun getLanguage(player: Player?): String {
-		if (player == null) return Bukcore.getInstance().config.getString("fallback_lang", "en")
-		return playerLanguages[player.uniqueId] ?: Bukcore.getInstance().config.getString("fallback_lang", "en")
+		if (player == null) return Bukcore.language
+		val uid = player.uniqueId
+		val static = staticPlayerLanguages[uid]
+		if (static != null) return static
+
+		val lang = playerLanguages[uid]
+		if (lang == null) {
+			val fallback = Bukcore.language
+			playerLanguages[uid] = fallback
+			return fallback
+		}
+		return lang
+	}
+
+	private fun getLanguageSection(language: String): ConfigurationSection? {
+		if (language == fallbackLang) return fallback
+		return root.getConfigurationSection(language)
+	}
+
+	private fun getFallbackLanguage(): ConfigurationSection {
+		if (fallbackLang == Bukcore.language) return fallback
+		val new = Bukcore.language
+		var fallback = root.getConfigurationSection(new)
+		if (fallback == null)
+			fallback = root.getConfigurationSection("en")
+
+		if (fallback == null)
+			return this.fallback
+		else {
+			this.fallback = fallback
+			this.fallbackLang = new
+		}
+		return fallback
+
 	}
 
 	fun loadFile(stream: InputStream?, language: String, path: String? = null) {
@@ -81,13 +150,15 @@ object Translator {
 		if (root.contains(language)) {
 			val cfg = root.getConfigurationSection(language)
 			for (key in data.getKeys(false)) cfg.set(key, data.get(key))
-		} else
+		} else {
 			root.set(language, data)
+			languages.add(language)
+		}
 	}
 
 	fun translate(language: String, key: String): String {
-		return (root.getConfigurationSection(language)
-				?: root.getConfigurationSection(getLanguage(null)))?.getString(key) ?: key
+		return getLanguageSection(language)?.getString(key)
+				?: getFallbackLanguage().getString(key) ?: key
 	}
 
 	fun translate(locale: Locale, key: String) = translate(locale.language, key)

@@ -10,6 +10,7 @@ player-not-found: Couldn't find a player in the server
 chest: Chest
 inventory: inventory
 block: Block
+player: player
 players: players
 command: command
 from: from
@@ -42,3 +43,7 @@ day : day(s)
 
 cooldown: cooldown
 remaining: remaining
+
+automatic: automatic
+language: language
+set: set

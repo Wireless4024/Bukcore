@@ -56,6 +56,10 @@ commands:
     usage: /loadchunk <area> [count-per-period] [period]
     permission: bukcore.loadchunk
 
+  setlanguage:
+    description: set static language for plugin that use bukcore translator
+    usage: /setlanguage <language code> or /setlanguage <player> <language code>
+
   sortinventory:
     description: sort inventory
     usage: /sortinventory [player] or /sortinventory <x> <y> <z> <world>

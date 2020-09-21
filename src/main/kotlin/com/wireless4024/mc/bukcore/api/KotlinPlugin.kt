@@ -33,6 +33,8 @@
 
 package com.wireless4024.mc.bukcore.api
 
+import org.bukkit.configuration.ConfigurationSection
+import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.event.Event
 
 abstract class KotlinPlugin : KotlinPlugin0() {
@@ -49,5 +51,11 @@ abstract class KotlinPlugin : KotlinPlugin0() {
 	 */
 	inline fun <reified T : Event> registerEvent(noinline executor: T.() -> Unit) {
 		registerEvent(T::class.java, executor)
+	}
+
+	fun ymlResource(name: String, block: (YamlConfiguration) -> Unit) {
+		val yml = readYamlFile(name)
+		block(yml)
+		yml.save(getFile(name))
 	}
 }

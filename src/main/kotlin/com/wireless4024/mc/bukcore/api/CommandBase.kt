@@ -80,7 +80,7 @@ interface CommandBase : CommandExecutor, TabCompleter {
 		}
 
 		fun getPlayers(sender: CommandSender, name: String? = null): MutableList<String> {
-			return getOnlinePlayers(sender.server, name?.toLowerCase() ?: "") ?: AlwaysEmptyMutableList.get()
+			return getOnlinePlayers(sender.server, name?.toLowerCase() ?: "")
 		}
 	}
 

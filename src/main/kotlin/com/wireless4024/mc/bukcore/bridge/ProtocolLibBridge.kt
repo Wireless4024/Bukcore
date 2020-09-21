@@ -32,7 +32,7 @@
 
 package com.wireless4024.mc.bukcore.bridge
 
-import com.wireless4024.mc.bukcore.Bukcore
+import com.wireless4024.mc.bukcore.utils.server
 import org.bukkit.plugin.Plugin
 
 /**
@@ -50,6 +50,5 @@ object ProtocolLibBridge : Bridge {
 		get() = plugin != null && plugin?.isEnabled == true
 
 	override val plugin: Plugin?
-		get() = _plugin
-		        ?: (Bukcore.INSTANCE?.server?.pluginManager?.getPlugin("ProtocolLib"))?.also { _plugin = it }
+		get() = _plugin ?: server { pluginManager.getPlugin(name)?.also { _plugin = it } }
 }

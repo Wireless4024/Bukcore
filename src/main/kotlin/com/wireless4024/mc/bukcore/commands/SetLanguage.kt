@@ -30,38 +30,54 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.wireless4024.mc.bukcore.internal
+package com.wireless4024.mc.bukcore.commands
 
-import com.wireless4024.mc.bukcore.Bukcore
+import com.wireless4024.mc.bukcore.api.CommandBase
+import com.wireless4024.mc.bukcore.api.KotlinPlugin
+import com.wireless4024.mc.bukcore.utils.i18n.Translator
+import com.wireless4024.mc.bukcore.utils.i18n.translateMessage
+import com.wireless4024.mc.bukcore.utils.i18n.translator
 import com.wireless4024.mc.bukcore.utils.player
 import com.wireless4024.mc.bukcore.utils.server
-import org.bukkit.OfflinePlayer
+import org.bukkit.command.Command
+import org.bukkit.command.CommandSender
+import org.bukkit.entity.Player
 
-/**
- * get existing player in server
- *
- * @author Wireless4024
- * @version 0.1
- * @since 0.1
- */
-object Players {
-
-	val players = HashMap<String, OfflinePlayer>()
-
-	fun getPlayer(name: String): OfflinePlayer? {
-		if (name in players)
-			return players[name]
-
-		@Suppress("DEPRECATION") val p = server { player(name) }
-		if (p != null) return p
-		refresh()
-		return players.getOrDefault(name, null)
+class SetLanguage(override val plugin: KotlinPlugin) : CommandBase {
+	override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<String>): Boolean {
+		if (sender is Player) {
+			sender.translator {
+				if (args.isEmpty()) {
+					Translator.setStaticLanguage(sender, "auto")
+					+"{language} {has-been} {set} {to} {automatic}"
+					return true
+				} else if (args.size == 1) {
+					val lang = args[0]
+					Translator.setStaticLanguage(sender, lang)
+					+"{language} {has-been} {set} {to} $lang"
+					return true
+				}
+			}
+		}
+		if (args.isEmpty()) return false
+		if (args.size < 2 || !sender.hasPermission("bukcore.language.set-other")) return false
+		sender.translator {
+			server {
+				player(args.first()) {
+					val lang = args[1]
+					Translator.setStaticLanguage(this, lang)
+					+"{language} {for} ${this.name} {has-been} {set} {to} $lang"
+					translateMessage("{language} {has-been} {set} {to} $lang")
+				} ?: kotlin.run {
+					+"{cant-find} {player}"
+					return true
+				}
+			}
+		}
+		return true
 	}
 
-	fun refresh() {
-		for (offlinePlayer in Bukcore.getInstance().server.offlinePlayers) {
-			if (offlinePlayer.name == null) continue
-			players[offlinePlayer.name] = offlinePlayer
-		}
+	override fun onTabComplete(sender: CommandSender, command: Command, alias: String, args: Array<String>): MutableList<String>? {
+		return if (args.size < 3) Translator.languages else null
 	}
 }

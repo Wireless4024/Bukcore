@@ -46,8 +46,7 @@ import com.wireless4024.mc.bukcore.commands.*
 import com.wireless4024.mc.bukcore.internal.Players
 import com.wireless4024.mc.bukcore.utils.Cooldown
 import com.wireless4024.mc.bukcore.utils.i18n.Translator
-import org.bukkit.configuration.file.YamlConfiguration
-import org.bukkit.event.player.PlayerJoinEvent
+import java.util.concurrent.LinkedBlockingQueue
 
 /**
  * Main class for bukcore
@@ -66,7 +65,9 @@ class Bukcore : KotlinPlugin() {
 			reloadConfig()
 			init()
 		}
+		_language = config.getString("fallback_lang", "en")
 	}
+
 
 	private fun init() {
 		enableAllCommand()
@@ -87,9 +88,10 @@ class Bukcore : KotlinPlugin() {
 		LoadChunk(this).register()
 		SortInventory(this).register()
 		RandomTeleport(this).register()
+		SetLanguage(this).register()
 
-		Translator.loadFile(  getResource("bukcore/lang/en.yml"),"en")
-		Translator.loadFile(  getResource("bukcore/lang/th.yml"),"th")
+		Translator.loadFile(getResource("bukcore/lang/en.yml"), "en")
+		Translator.loadFile(getResource("bukcore/lang/th.yml"), "th")
 
 		ProtocolLibBridge {
 			ProtocolLibrary.getProtocolManager().addPacketListener(object : PacketAdapter(this@Bukcore, ListenerPriority.LOWEST, PacketType.Play.Client.SETTINGS) {
@@ -115,20 +117,32 @@ class Bukcore : KotlinPlugin() {
 	override fun onDisable() {
 		Cooldown.resetAll()
 		Players.players.clear()
+		while (shutdownTask.isNotEmpty())
+			(shutdownTask.take())()
 	}
 
 	companion object {
+		private val shutdownTask = LinkedBlockingQueue<() -> Unit>()
+		private var _language = "en"
+		val language get() = _language
 
 		const val VERSION = "0.2.1"
 
 		@JvmSynthetic
-		internal var INSTANCE: Bukcore? = null
+		private var INSTANCE: Bukcore? = null
 
 		@JvmStatic
 		fun getInstance() = INSTANCE!!
 
 		fun log(message: Any?) {
 			INSTANCE?.log(message)
+		}
+
+		/**
+		 * register task to run when Bukcore is disable; a task will run single time
+		 */
+		fun registerShutdownTask(task: () -> Unit) {
+			shutdownTask.put(task)
 		}
 	}
 }
