@@ -46,7 +46,11 @@ import com.wireless4024.mc.bukcore.commands.*
 import com.wireless4024.mc.bukcore.internal.Players
 import com.wireless4024.mc.bukcore.utils.Cooldown
 import com.wireless4024.mc.bukcore.utils.i18n.Translator
+import java.net.URI
+import java.nio.file.*
 import java.util.concurrent.LinkedBlockingQueue
+import java.util.stream.Stream
+
 
 /**
  * Main class for bukcore
@@ -60,12 +64,14 @@ class Bukcore : KotlinPlugin() {
 	/**
 	 * reload config
 	 */
-	fun reload(dry: Boolean = false) {
-		if (!dry) {
-			reloadConfig()
-			init()
-		}
+	fun reload() {
+		reloadConfig()
+		init()
 		_language = config.getString("fallback_lang", "en")
+		runAsync {
+			// working with filesystem seem very slow so this should not block main thread
+			Translator.loadDirectory(getFile("lang"), true)
+		}
 	}
 
 
@@ -90,8 +96,36 @@ class Bukcore : KotlinPlugin() {
 		RandomTeleport(this).register()
 		SetLanguage(this).register()
 
-		Translator.loadFile(getResource("bukcore/lang/en.yml"), "en")
-		Translator.loadFile(getResource("bukcore/lang/th.yml"), "th")
+		runAsync {
+			var fs: FileSystem? = null
+			val uri: URI = Bukcore::class.java.classLoader.getResource("bukcore/lang")?.toURI() ?: return@runAsync
+			val myPath: Path = if (uri.scheme == "jar") {
+				fs = FileSystems.newFileSystem(uri, mutableMapOf<String, Any>())
+				fs.getPath("bukcore/lang")
+			} else {
+				Paths.get(uri)
+			}
+			val walk: Stream<Path> = Files.walk(myPath, 1)
+			val it: Iterator<Path> = walk.iterator()
+			while (it.hasNext()) {
+				val path = it.next()
+				val fname = path.fileName.toString()
+				if (!fname.endsWith(".yml", true)) continue
+				val lang = Translator.detectFileLanguage(fname)
+				if (lang == null) {
+					Companion.log("can't detect language for file $path; skipping")
+					continue
+				} else
+					Companion.log("detected language $lang for file $path")
+
+				val stream = path.toUri().toURL().openStream()
+				Translator.loadFile(stream, lang)
+				stream.close()
+			}
+			fs?.close()
+		}
+		//Translator.loadFile(getResource("bukcore/lang/en.yml"), "en")
+		//Translator.loadFile(getResource("bukcore/lang/th.yml"), "th")
 
 		ProtocolLibBridge {
 			ProtocolLibrary.getProtocolManager().addPacketListener(object : PacketAdapter(this@Bukcore, ListenerPriority.LOWEST, PacketType.Play.Client.SETTINGS) {
@@ -111,7 +145,7 @@ class Bukcore : KotlinPlugin() {
 			saveConfig()
 			logger.info("update config done")
 		}
-		init()
+		reload()
 	}
 
 	override fun onDisable() {

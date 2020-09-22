@@ -40,6 +40,7 @@ sec: second(s)
 minute: minute(s)
 hour: hour(s)
 day : day(s)
+week : week(s)
 
 cooldown: cooldown
 remaining: remaining

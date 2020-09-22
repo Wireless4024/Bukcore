@@ -40,8 +40,10 @@ import org.bukkit.entity.Player
 import java.io.File
 import java.io.InputStream
 import java.io.InputStreamReader
+import java.io.Reader
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util.*
+import java.util.concurrent.locks.ReentrantLock
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
@@ -54,8 +56,11 @@ object Translator {
 	private val playerLanguages = HashMap<UUID, String>()
 	private var fallbackLang: String = ""
 	private var fallback: ConfigurationSection = root
+	private val bunker = ReentrantLock()
 
 	val languages = ArrayList<String>()
+
+	fun detectFileLanguage(fileName: String) = languageFinder.find(fileName)?.value
 
 	init {
 		Bukcore.registerShutdownTask {
@@ -129,16 +134,28 @@ object Translator {
 
 	}
 
-	fun loadFile(stream: InputStream?, language: String, path: String? = null) {
+	fun loadFile(stream: InputStream?, language: String, path: String? = null, closeStream: Boolean = true) {
 		if (stream == null) return
 		if (language.isEmpty()) return
 		var yml: ConfigurationSection = YamlConfiguration.loadConfiguration(InputStreamReader(stream, UTF_8))
+		if (closeStream)
+			stream.close()
+		if (path != null) yml = yml.getConfigurationSection(path)
+		register(language, yml)
+	}
+
+	fun loadFile(reader: Reader?, language: String, path: String? = null, closeReader: Boolean = true) {
+		if (reader == null) return
+		if (language.isEmpty()) return
+		var yml: ConfigurationSection = YamlConfiguration.loadConfiguration(reader)
+		if (closeReader)
+			reader.close()
 		if (path != null) yml = yml.getConfigurationSection(path)
 		register(language, yml)
 	}
 
 	fun loadFile(file: File?, language: String? = null, path: String? = null) {
-		if (file == null || !file.exists()) return
+		if (file == null || !file.exists() || file.isDirectory) return
 		var yml: ConfigurationSection = YamlConfiguration.loadConfiguration(file)
 		if (path != null) yml = yml.getConfigurationSection(path)
 		val lang = if (language == null || language.isEmpty()) (languageFinder.find(file.name)?.value
@@ -146,14 +163,37 @@ object Translator {
 		register(lang, yml)
 	}
 
+	/**
+	 * load language files in directory
+	 * file name should end with language.yml eg. test-en.yml en.yml
+	 * @param directory path to directory
+	 */
+	fun loadDirectory(directory: File, create: Boolean = false) {
+		try {
+			if (directory.exists() && directory.isDirectory) {
+				for (file in directory.list() ?: return) {
+					if (file.endsWith(".yml", true))
+						loadFile(directory.resolve(file))
+				}
+			} else if (create) directory.mkdirs()
+		} catch (t: Throwable) {
+			t.printStackTrace()
+			// ignored
+		}
+	}
+
 	fun register(language: String, data: ConfigurationSection) {
-		if (root.contains(language)) {
-			val cfg = root.getConfigurationSection(language)
+		/* need this because it can cause [org.bukkit.configuration.MemorySection] to corrupt */
+		bunker.lock()
+		val lang = language.toLowerCase()
+		if (root.contains(lang)) {
+			val cfg = root.getConfigurationSection(lang)
 			for (key in data.getKeys(false)) cfg.set(key, data.get(key))
 		} else {
-			root.set(language, data)
-			languages.add(language)
+			root.set(lang, data)
+			languages.add(lang)
 		}
+		bunker.unlock()
 	}
 
 	fun translate(language: String, key: String): String {
@@ -175,6 +215,8 @@ object Translator {
 			translate(lang, it.value.run { substring(1, length - 1) })
 		} else translate(getLanguage(player), text)
 	}
+
+	override fun toString() = root.saveToString()
 }
 
 inline class Translation(val language: String) {
