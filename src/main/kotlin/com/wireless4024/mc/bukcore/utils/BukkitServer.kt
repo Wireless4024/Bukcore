@@ -49,6 +49,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryType
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
+import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.potion.PotionEffectType
 import java.util.*
@@ -73,6 +74,11 @@ inline fun Server.player(name: String): Player? = this.getPlayerExact(name)
 inline fun <R> Server.player(name: String, block: Player.() -> R): R? = this.getPlayerExact(name)?.run(block)
 inline fun Server.player(uuid: UUID): Player? = this.getPlayer(uuid)
 inline fun <R> Server.player(uuid: UUID, block: Player.() -> R): R? = this.getPlayer(uuid)?.run(block)
+inline fun Server.plugin() = this.pluginManager.plugins
+inline fun Server.plugin(block: Plugin.() -> Unit) = plugin().forEach(block)
+inline fun <R> Server.plugin0(block: Plugin.() -> R) = plugin().run { ArrayList<R>(size).also { for (e in this) it.add(block(e)) } }
+inline fun Server.plugin(name: String): Plugin? = this.pluginManager.getPlugin(name)
+inline fun <R> Server.plugin(name: String, block: Plugin.() -> R): R? = this.plugin(name)?.run(block)
 inline fun Server.offPlayer() = this.offlinePlayers
 inline fun <R> Server.offPlayer(block: Array<OffPlayer>.() -> R): R = block(this.offlinePlayers)
 inline fun Server.offPlayer(block: Array<OffPlayer>.() -> Unit): Array<OffPlayer> = this.offlinePlayers.apply(block)
@@ -146,6 +152,9 @@ inline fun Player.heal() {
 inline val Player.maxHealth0 get() = this.getAttribute(Attribute.GENERIC_MAX_HEALTH).value
 inline fun Player.kill() {
 	this.health = 0.0
+}
+fun Server.selector(selector:String){
+
 }
 
 inline fun <R> server(block: Server.() -> R) = block(Bukkit.getServer())

@@ -32,6 +32,8 @@
 
 package com.wireless4024.mc.bukcore.bridge
 
+import com.wireless4024.mc.bukcore.utils.plugin
+import com.wireless4024.mc.bukcore.utils.server
 import org.bukkit.plugin.Plugin
 
 /**
@@ -46,7 +48,7 @@ interface Bridge {
 	val name: String
 	val available: Boolean
 		get() = plugin?.isEnabled == true
-	val plugin: Plugin?
+	val plugin: Plugin? get() = server { plugin(this.name) }
 
 	operator fun invoke(block: Bridge.() -> Unit) {
 		if (this.available) block(this)

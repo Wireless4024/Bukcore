@@ -41,11 +41,12 @@ import com.comphenix.protocol.events.ListenerPriority
 import com.comphenix.protocol.events.PacketAdapter
 import com.comphenix.protocol.events.PacketEvent
 import com.wireless4024.mc.bukcore.api.KotlinPlugin
-import com.wireless4024.mc.bukcore.bridge.ProtocolLibBridge
 import com.wireless4024.mc.bukcore.commands.*
 import com.wireless4024.mc.bukcore.internal.Players
 import com.wireless4024.mc.bukcore.utils.Cooldown
 import com.wireless4024.mc.bukcore.utils.i18n.Translator
+import com.wireless4024.mc.bukcore.utils.plugin
+import com.wireless4024.mc.bukcore.utils.server
 import java.net.URI
 import java.nio.file.*
 import java.util.concurrent.LinkedBlockingQueue
@@ -95,6 +96,7 @@ class Bukcore : KotlinPlugin() {
 		SortInventory(this).register()
 		RandomTeleport(this).register()
 		SetLanguage(this).register()
+		Tpx(this).register()
 
 		runAsync {
 			var fs: FileSystem? = null
@@ -127,14 +129,15 @@ class Bukcore : KotlinPlugin() {
 		//Translator.loadFile(getResource("bukcore/lang/en.yml"), "en")
 		//Translator.loadFile(getResource("bukcore/lang/th.yml"), "th")
 
-		ProtocolLibBridge {
-			ProtocolLibrary.getProtocolManager().addPacketListener(object : PacketAdapter(this@Bukcore, ListenerPriority.LOWEST, PacketType.Play.Client.SETTINGS) {
-				override fun onPacketReceiving(event: PacketEvent) {
-					Translator.setLanguage(event.player, event.packet.strings.read(0).substringBefore('_'))
-				}
-			})
+		server {
+			plugin("ProtocolLib") {
+				ProtocolLibrary.getProtocolManager().addPacketListener(object : PacketAdapter(this@Bukcore, ListenerPriority.LOWEST, PacketType.Play.Client.SETTINGS) {
+					override fun onPacketReceiving(event: PacketEvent) {
+						Translator.setLanguage(event.player, event.packet.strings.read(0).substringBefore('_'))
+					}
+				})
+			}
 		}
-
 		saveDefaultConfig()
 
 		if (config.getString("version") < VERSION) {

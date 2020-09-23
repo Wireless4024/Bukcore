@@ -32,11 +32,12 @@
 
 package com.wireless4024.mc.bukcore.bridge
 
+import com.wireless4024.mc.bukcore.utils.plugin
 import com.wireless4024.mc.bukcore.utils.server
 import org.bukkit.plugin.Plugin
 
 /**
- * a class to check if plugin WorldGuard is available
+ * a class to check if plugin ProtocolLib is available
  *
  * @author Wireless4024
  * @version 0.1
@@ -46,9 +47,7 @@ object ProtocolLibBridge : Bridge {
 
 	private var _plugin: Plugin? = null
 	override val name: String = "ProtocolLib"
-	override val available: Boolean
-		get() = plugin != null && plugin?.isEnabled == true
 
 	override val plugin: Plugin?
-		get() = _plugin ?: server { pluginManager.getPlugin(name)?.also { _plugin = it } }
+		get() = _plugin ?: server { plugin(this.name)?.also { _plugin = it } }
 }
