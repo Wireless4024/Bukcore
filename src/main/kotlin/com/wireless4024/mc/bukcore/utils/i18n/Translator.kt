@@ -92,8 +92,6 @@ object Translator {
 	}
 
 	fun setLanguage(player: Player, language: String) {
-		val uid = player.uniqueId
-		if (uid in staticPlayerLanguages) return
 		playerLanguages[player.uniqueId] = language
 	}
 
