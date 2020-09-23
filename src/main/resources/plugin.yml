@@ -66,6 +66,11 @@ commands:
     permission: bukcore.sortinventory
     aliases: [ sortinv ]
 
+  tpx:
+    description: to tp to specific dimension
+    usage: /tpx [player] <world> [x] [y] [z] [pitch] [yaw]
+    permission: bukcore.tpx
+
   test:
     description: development use
     usage: /test
