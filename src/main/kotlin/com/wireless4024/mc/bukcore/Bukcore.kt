@@ -99,10 +99,9 @@ class Bukcore : KotlinPlugin() {
 		Tpx(this).register()
 
 		runAsync {
-			var fs: FileSystem? = null
 			val uri: URI = Bukcore::class.java.classLoader.getResource("bukcore/lang")?.toURI() ?: return@runAsync
 			val myPath: Path = if (uri.scheme == "jar") {
-				fs = FileSystems.newFileSystem(uri, mutableMapOf<String, Any>())
+				val fs = langfs ?: (FileSystems.newFileSystem(uri, mutableMapOf<String, Any>()).also { langfs = it })
 				fs.getPath("bukcore/lang")
 			} else {
 				Paths.get(uri)
@@ -124,7 +123,6 @@ class Bukcore : KotlinPlugin() {
 				Translator.loadFile(stream, lang)
 				stream.close()
 			}
-			fs?.close()
 		}
 		//Translator.loadFile(getResource("bukcore/lang/en.yml"), "en")
 		//Translator.loadFile(getResource("bukcore/lang/th.yml"), "th")
@@ -159,6 +157,7 @@ class Bukcore : KotlinPlugin() {
 	}
 
 	companion object {
+		private var langfs: FileSystem? = null
 		private val shutdownTask = LinkedBlockingQueue<() -> Unit>()
 		private var _language = "en"
 		val language get() = _language
