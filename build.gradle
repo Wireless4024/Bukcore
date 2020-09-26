@@ -95,7 +95,7 @@ task all {
 	dependsOn 'sourcesJar'
 }
 task jarTo {
-	dependsOn 'clean'
+	//dependsOn 'clean'
 	dependsOn 'fatJar'
 	doLast {
 		if (project.hasProperty('to')) {

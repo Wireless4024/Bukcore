@@ -62,8 +62,8 @@ class Gc(override val plugin: KotlinPlugin) : CommandBase {
 				val after = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
 				val dur = System.currentTimeMillis() - time
 				sender.translator {
-					sender.sendMessage((-("{freed-memory} ${ChatColor.BLUE}%.3fMib${ChatColor.RESET} {from} ${ChatColor.RED}%.3fMib$" +
-							"{ChatColor.RESET} {to} ${ChatColor.GREEN}%.3fMib${ChatColor.RESET} {in} ${ChatColor.GREEN}%sms"))
+					sender.sendMessage((-("{freed-memory} ${ChatColor.BLUE}%.3fMib${ChatColor.RESET} {from} ${ChatColor.RED}%.3fMib" +
+							"${ChatColor.RESET} {to} ${ChatColor.GREEN}%.3fMib${ChatColor.RESET} {in} ${ChatColor.GREEN}%sms"))
 							.format((before - after) / 1048576.0,
 									before / 1048576.0, after / 1048576.0, dur))
 				}
