@@ -33,12 +33,12 @@
 package com.wireless4024.mc.bukcore.utils
 
 import com.wireless4024.mc.bukcore.bridge.NBTAPIBridge
-import com.wireless4024.mc.bukcore.bridge.toNBTCompound
-import com.wireless4024.mc.bukcore.utils.blocks.BlockNBT.readNBTMap
-import de.tr7zw.nbtapi.NBTReflectionUtil
+import de.tr7zw.nbtapi.NBTContainer
+import de.tr7zw.nbtapi.NBTTileEntity
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.Block
+import kotlin.math.floor
 
 /**
  * @since 0.2
@@ -72,7 +72,7 @@ object DirectionalOffset {
 				forward = base.x - target.x
 			}
 		}
-		return DirectionOffset(left, forward, up)
+		return DirectionOffset(floor(left), floor(forward), floor(up))
 	}
 }
 
@@ -98,24 +98,41 @@ data class DirectionOffset(val left: Double, val forward: Double, val up: Double
 }
 
 data class RelativeBlock(
-	val material: Material, val direction: Byte, val offset: DirectionOffset, val nbt: HashMap<String, Any>? = null
+		val material: Material, val direction: Byte, val offset: DirectionOffset, val nbt: String? = null
 ) {
 
 	fun place(where: Location) {
 		val thisDirection = Direction.direction4(where)
 		val target = offset.toLocation(where, thisDirection)
 		val block = target.block
-		block.type = material
-		@Suppress("DEPRECATION") block.data = Direction.destabilize4(direction, thisDirection)
-		if (nbt != null && nbt.isNotEmpty() && NBTAPIBridge.available) {
+
+		val bs = block.state
+		if (bs == null) {
+			block.type = material
+			//if (material != Material.CHEST && material != Material.TRAPPED_CHEST)
 			try {
-				val bs = block.state
-				if (bs.javaClass.simpleName == "BlockEntityTag") return
-				NBTReflectionUtil.setTileEntityNBTTagCompound(bs, nbt.toNBTCompound().compound)
+				@Suppress("DEPRECATION")
+				block.data = Direction.destabilize4(direction, thisDirection)
 			} catch (t: Throwable) {
-				t.printStackTrace()
+				// nothing just we can't
+			}
+		} else {
+			bs.type = material
+			//if (material != Material.CHEST && material != Material.TRAPPED_CHEST)
+			bs.rawData = Direction.destabilize4(direction, thisDirection)
+			bs.update(true, false)
+			if (nbt != null && nbt.isNotEmpty() && NBTAPIBridge.available) {
+				try {
+					if (bs.javaClass.simpleName == "CraftBlockState") return
+					NBTTileEntity(bs).mergeCompound(NBTContainer(nbt))
+				} catch (t: Throwable) {
+					//t.printStackTrace()
+				} finally {
+					bs.update(true, false)
+				}
 			}
 		}
+
 	}
 }
 
@@ -126,19 +143,15 @@ fun Block.toRelativeBlock(base: Location): RelativeBlock {
 
 	@Suppress("DEPRECATION") val direction: Byte = Direction.normalize4(this.data, looking)
 	val offset: DirectionOffset = DirectionalOffset.from(base, location, looking)
-	val nbt: HashMap<String, Any>? = this.readNBTMap()
+	val bs = state
+	val nbt: String? = if (bs.javaClass.simpleName == "CraftBlockState") null else NBTContainer(NBTTileEntity(bs).toString()).apply {
+		removeKey("x")
+		removeKey("y")
+		removeKey("z")
+		removeKey("id")
+	}.toString()
 
-	return RelativeBlock(material, direction, offset, if (nbt?.isEmpty() != true) nbt else null)
+	return RelativeBlock(material, direction, offset, if (nbt == "{}") null else nbt)
 }
 
-fun Location.toRelativeBlock(base: Location): RelativeBlock {
-	val block = this.block
-	val looking = Direction.direction4(this)
-	val material: Material = block.type
-
-	@Suppress("DEPRECATION") val direction: Byte = Direction.normalize4(block.data, looking)
-	val offset: DirectionOffset = DirectionalOffset.from(base, this, looking)
-	val nbt: HashMap<String, Any>? = this.block.readNBTMap()
-
-	return RelativeBlock(material, direction, offset, if (nbt?.isEmpty() != true) nbt else null)
-}
+inline fun Location.toRelativeBlock(base: Location): RelativeBlock = block.toRelativeBlock(base)

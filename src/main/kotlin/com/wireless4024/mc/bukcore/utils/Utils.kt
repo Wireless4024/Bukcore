@@ -33,8 +33,12 @@
 
 package com.wireless4024.mc.bukcore.utils
 
+import com.google.common.util.concurrent.AtomicDouble
 import org.bukkit.entity.Player
 import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * Utilities
@@ -308,3 +312,16 @@ public interface Utils {
 fun Player.sendMessage(o: Any?) {
 	this.sendMessage(if (o is Array<*>) o.contentDeepToString() else if (o is String) o else o?.toString())
 }
+
+var <R> AtomicReference<R>.value
+	get() = get()
+	set(value) = set(value)
+var AtomicInteger.value
+	get() = get()
+	set(value) = set(value)
+var AtomicLong.value
+	get() = get()
+	set(value) = set(value)
+var AtomicDouble.value
+	get() = get()
+	set(value) = set(value)

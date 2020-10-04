@@ -45,13 +45,11 @@ import de.tr7zw.nbtapi.NBTReflectionUtil
 import de.tr7zw.nbtapi.NBTTileEntity
 import de.tr7zw.nbtapi.utils.nmsmappings.ReflectionMethod.COMPOUND_REMOVE_KEY
 import org.bukkit.ChatColor
-import org.bukkit.Material
 import org.bukkit.Material.*
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import org.bukkit.material.MaterialData
 import org.bukkit.plugin.Plugin
 
 /**
@@ -76,13 +74,13 @@ class PickBlock(override val plugin: KotlinPlugin) : PlayerCommandBase {
 			val plugin: Plugin? = NBTAPIBridge.plugin
 
 			if (item.type == SIGN_POST || item.type == WALL_SIGN) {
-				item= ItemStack(SIGN)
+				item = ItemStack(SIGN)
 			}
 
 			val blockState = block.state
 			val blockHasNBT = blockState.javaClass.simpleName != "CraftBlockState"
 			if (plugin != null && blockState != null && blockHasNBT) {
-				val nbt = NBTTileEntity(blockState).compound
+				val nbt = NBTContainer(NBTTileEntity(blockState).toString()).compound
 				COMPOUND_REMOVE_KEY.run(nbt, "x")
 				COMPOUND_REMOVE_KEY.run(nbt, "y")
 				COMPOUND_REMOVE_KEY.run(nbt, "z")

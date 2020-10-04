@@ -45,7 +45,12 @@ object BlockNBT {
 
 	fun Block.readNBTMap(): HashMap<String, Any>? {
 		if (this.state.javaClass.simpleName == "CraftBlockState") return null
-		return NBTTileEntity(this.state).toHashMap()
+		return readNBTMap(hashMapOf())
+	}
+
+	fun Block.readNBTMap(map: HashMap<String, Any>): HashMap<String, Any> {
+		if (this.state.javaClass.simpleName == "CraftBlockState") return map
+		return NBTTileEntity(this.state).toHashMap(map)
 	}
 
 	fun Block.writeNBTMap(nbt: Map<String, Any>?): Boolean {
