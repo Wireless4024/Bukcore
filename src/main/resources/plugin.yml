@@ -30,6 +30,12 @@ commands:
     permission: bukcore.pickblock
     aliases: [ pick ]
 
+  dumptranslationkeys:
+    description: dump all available translation key that used by plugins
+    usage: /dumptranslationkeys
+    permission: bukcore.dumptranslationkeys
+    aliases: [ dtl ]
+
   randomteleport:
     description: random teleport
     usage: /randomteleport

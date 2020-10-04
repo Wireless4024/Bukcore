@@ -84,18 +84,19 @@ class Bukcore : KotlinPlugin() {
 
 	override fun onEnable() {
 		INSTANCE = this
+		BukcoreC(this).register(name = "bukcore")
 		Chat(this).register()
-		Test(this).register()
 		Gc(this).register()
+		ItemData(this).register()
+		LoadChunk(this).register()
 		OpenChest(this).register()
 		RainbowChat(this).register()
 		PickBlock(this).register()
-		ItemData(this).register()
-		BukcoreC(this).register(name = "bukcore")
-		LoadChunk(this).register()
-		SortInventory(this).register()
+		DumpTranslationKeys(this).register()
 		RandomTeleport(this).register()
 		SetLanguage(this).register()
+		SortInventory(this).register()
+		Test(this).register()
 		Tpx(this).register()
 
 		runAsync {
@@ -124,8 +125,6 @@ class Bukcore : KotlinPlugin() {
 				stream.close()
 			}
 		}
-		//Translator.loadFile(getResource("bukcore/lang/en.yml"), "en")
-		//Translator.loadFile(getResource("bukcore/lang/th.yml"), "th")
 
 		server {
 			plugin("ProtocolLib") {

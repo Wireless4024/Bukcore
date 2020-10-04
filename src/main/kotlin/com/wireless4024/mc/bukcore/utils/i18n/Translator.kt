@@ -33,6 +33,7 @@
 package com.wireless4024.mc.bukcore.utils.i18n
 
 import com.wireless4024.mc.bukcore.Bukcore
+import com.wireless4024.mc.bukcore.utils.UniqueSortedArrayList
 import org.bukkit.command.CommandSender
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.configuration.file.YamlConfiguration
@@ -59,6 +60,8 @@ object Translator {
 	private val bunker = ReentrantLock()
 
 	val languages = ArrayList<String>()
+
+	val keys:ArrayList<String> get() = root.getKeys(false).flatMapTo(UniqueSortedArrayList()) { root.getConfigurationSection(it).getKeys(true) }
 
 	fun detectFileLanguage(fileName: String) = languageFinder.find(fileName)?.value
 
