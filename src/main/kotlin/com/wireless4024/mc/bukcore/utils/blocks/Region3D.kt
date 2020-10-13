@@ -113,17 +113,17 @@ open class Region3D(val world: World,
 		fun form(location1: Location, location2: Location): Region3D {
 			if (location1.world != location2.world) throw IllegalArgumentException("location1.world != location2.world")
 			return Region3D(location1.world,
-			                location1.blockX, location2.blockX,
-			                location1.blockY, location2.blockY,
-			                location1.blockZ, location2.blockZ)
+					location1.blockX, location2.blockX,
+					location1.blockY, location2.blockY,
+					location1.blockZ, location2.blockZ)
 		}
 
 		fun around(center: Location, area: Int, up: Int = 1, down: Int = 0): Region3D {
 			val areaDiv2 = area shr 1
 			return Region3D(center.world,
-			                center.blockX - areaDiv2, center.blockX + areaDiv2,
-			                (center.blockY - down), center.blockY + up - 1,
-			                center.blockZ - areaDiv2, center.blockZ + areaDiv2
+					center.blockX - areaDiv2, center.blockX + areaDiv2,
+					(center.blockY - down), center.blockY + up - 1,
+					center.blockZ - areaDiv2, center.blockZ + areaDiv2
 			)
 		}
 
@@ -166,6 +166,10 @@ open class Region3D(val world: World,
 	 */
 	val size: Int = xDelta * yDelta * zDelta
 
+	inline val positionIteratorXYZ get() = PositionIteratorXYZ(x1, x2, y1, y2, z1, z2)
+	inline val positionIteratorYZX get() = PositionIteratorYZX(x1, x2, y1, y2, z1, z2)
+	inline val positionIteratorZXY get() = PositionIteratorZXY(x1, x2, y1, y2, z1, z2)
+
 	/**
 	 * loop through all blocks in this region
 	 * @param task a task to process a block
@@ -181,6 +185,7 @@ open class Region3D(val world: World,
 	 * loop through all blocks in this region with indexed
 	 * @param task a task to process a block
 	 */
+	@Deprecated("better use your own int counter")
 	open operator fun invoke(task: (Block, Int) -> Unit) {
 		var i = -1
 		for (x in x1..x2)
@@ -210,6 +215,7 @@ open class Region3D(val world: World,
 	 * loop through all blocks exclude [exclude] in this region with indexed
 	 * @param task a task to process a block
 	 */
+	@Deprecated("better use your own int counter")
 	fun loopExclude(exclude: Array<Material>, task: (Block, Int) -> Unit) {
 		val exc = exclude.sortedArray()
 
@@ -258,6 +264,7 @@ open class Region3D(val world: World,
 	/**
 	 * loop through all blocks in ellipsoid region
 	 */
+	@Deprecated("better use your own int counter")
 	open fun ellipsoid(task: (Block, Int) -> Unit) {
 		var i = -1
 		val xArea = xDelta shr 1
@@ -297,7 +304,7 @@ open class Region3D(val world: World,
 	 * @param task a task to process a block
 	 */
 	fun invokeSync(task: (Block) -> Unit) {
-		Bukcore.getInstance().runTask { this.invoke(task) }
+		Bukcore.instance.runTask { this.invoke(task) }
 	}
 
 	/**
@@ -306,7 +313,7 @@ open class Region3D(val world: World,
 	 * @param array target array
 	 */
 	fun invokeSync(array: Array<Block>): Future<Array<Block>> {
-		return Bukcore.getInstance().call { this.invoke(array) }
+		return Bukcore.instance.call { this.invoke(array) }
 	}
 
 	/**
@@ -316,7 +323,7 @@ open class Region3D(val world: World,
 	 * @param task a task to process a block
 	 */
 	fun invokeSync(delay: Long, task: (Block) -> Unit) {
-		Bukcore.getInstance().runTask(delay) { this.invoke(task) }
+		Bukcore.instance.runTask(delay) { this.invoke(task) }
 	}
 
 	/**
@@ -325,12 +332,12 @@ open class Region3D(val world: World,
 	 */
 	fun getBlocksSync(): Array<Block> {
 		if (Bukkit.isPrimaryThread()) return toArray()
-		return Bukcore.getInstance().call(this::toArray).get()
+		return Bukcore.instance.call(this::toArray).get()
 	}
 
 	fun getBlocksSync(range: IntRange): Array<Block> {
 		if (Bukkit.isPrimaryThread()) return toArray(range)
-		return Bukcore.getInstance().call { toArray(range) }.get()
+		return Bukcore.instance.call { toArray(range) }.get()
 	}
 
 	/**
@@ -387,7 +394,7 @@ open class Region3D(val world: World,
 		val zch = z2 shr 4 // high z
 		var i = 0L
 
-		val core = Bukcore.getInstance()
+		val core = Bukcore.instance
 
 		@Suppress("UNCHECKED_CAST")  // this will always passed
 		val buffer = java.lang.reflect.Array.newInstance(IntPair::class.java, counts) as Array<IntPair>
@@ -502,6 +509,7 @@ open class Region3D(val world: World,
 	 * @return Region3D
 	 */
 	fun moveZ(amount: Int) = Region3D(world, x1, x2, y1, y2, z1 + amount, z2 + amount)
+
 	fun blockAt(offset: Int): Block {
 		// 0 < offset < size
 		val x = (offset / (xDelta * zDelta))
@@ -542,10 +550,10 @@ open class Region3D(val world: World,
 			size < minJobSize -> {
 				invoke(job)
 			}
-			else              -> {
+			else -> {
 				val task = mutableListOf<BukkitTask>()
 				var i = 0
-				val plugin = Bukcore.getInstance()
+				val plugin = Bukcore.instance
 				val loops = (size / scale) - 1
 				while (true) {
 					if (i == loops) break
@@ -580,10 +588,10 @@ open class Region3D(val world: World,
 			size < minJobSize -> {
 				invoke(job)
 			}
-			else              -> {
+			else -> {
 				val task = mutableListOf<BukkitTask>()
 				var i = 0
-				val plugin = Bukcore.getInstance()
+				val plugin = Bukcore.instance
 				val loops = (size / scale) - 1
 				while (true) {
 					if (i == loops) break
@@ -619,7 +627,10 @@ open class Region3D(val world: World,
 			if (now - pos > 99) break // if reached 100 block will skip
 			++now
 		}
-		if (++now < size && !cancel.get()) Bukcore.getInstance()() { eachBlockPerTick(now, job) }
+		if (++now < size && !cancel.get()) {
+			val n=now
+			Bukcore.instance(1) { eachBlockPerTick(n, job) }
+		}
 	}
 
 	fun lazyAsyncGetBlocks(scale: Int, interval: Int, job: (Array<Block>) -> Unit): MutableList<BukkitTask> {
@@ -629,10 +640,10 @@ open class Region3D(val world: World,
 			size < minJobSize -> {
 				job(getBlocksSync())
 			}
-			else              -> {
+			else -> {
 				val task = mutableListOf<BukkitTask>()
 				var i = 0
-				val plugin = Bukcore.getInstance()
+				val plugin = Bukcore.instance
 				val loops = (size / scale) - 1
 				while (true) {
 					if (i == loops) break
